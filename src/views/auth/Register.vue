@@ -32,16 +32,17 @@
               "
               style="color: #143E32"
             >
-              Create your store
+              Stay on top of your business operations.
             </h1>
             <p class="text-left text-body-2" style="color: #445B54">
-              Enter your store name and link, and select your store type
+              Always know how your business is performing, keep track of store
+              sales and stay ahead of the competition.
             </p>
             <v-form
               class="auth_form_xs"
               :class="{ form_lg: !$vuetify.breakpoint.xs }"
             >
-              <v-stepper :value="step">
+              <!-- <v-stepper :value="step">
                 <v-stepper-header>
                   <v-stepper-step
                     :complete="step1"
@@ -89,8 +90,19 @@
                   :items="store_types"
                   item-color="success"
                 ></v-select>
-              </div>
-              <div v-show="step === 2">
+              </div> -->
+              <div>
+                <TextInput
+                  label="Store Name"
+                  name="storeName"
+                  @update="
+                    (vl) => {
+                      store_name = vl;
+                      store_slug = vl.replaceAll(' ', '-');
+                      cleanStoreUrl('blur');
+                    }
+                  "
+                ></TextInput>
                 <TextInput
                   label="Email"
                   name="email"
@@ -204,25 +216,14 @@
                     </svg> </template
                 ></TextInput>
 
-                <p @click="previousStep">Back</p>
+                <!-- <p @click="previousStep">Back</p> -->
               </div>
 
               <Button
-                v-if="step === 1"
                 :block="true"
-                label="Continue"
-                :primary="true"
-                size="large"
-                :disabled="!step1"
-                @onClick="createAccount()"
-              />
-              <Button
-                :block="true"
-                v-if="step === 2"
                 label="Create store"
                 :primary="true"
                 size="large"
-                :disabled="!step2"
                 @onClick="createAccount()"
               />
               <p class="mt-5 text-body-2">
@@ -323,15 +324,8 @@ export default {
     // },
     createAccount() {
       // e.preventDefault()
-      if (this.step === 1) {
-        this.step = 2;
-
-        // this.color2 = "primary"
-        if (this.step1 == false) {
-          this.color1 = "grey";
-        }
-      } else {
-        if (this.step1 && this.step2 == true) {
+      
+        // if (this.step1 && this.step2 == true) {
           this.validateInputs = true;
           if (!this.v$.$error) {
             let data = {
@@ -348,8 +342,8 @@ export default {
 
                 let data = {
                   store_name: this.store_name,
-                  slug: this.store_slug,
-                  business_type: this.store_type,
+                  slug: this.store_name,
+                  business_type: 6,
                 };
 
                 if (res.status == 200 || res.status == 201) {
@@ -378,14 +372,14 @@ export default {
                           acct_id
                         );
                         this.$store.commit(mutationTypes.EMAIL_VERIFIED, false);
-                        this.$router.push("/dash");
+                        this.$router.push("/inventory");
                         this.loading = false;
                       })
                       .catch((error) => {
                         this.loading = false;
 
                         if (error.response.status == 500) {
-                          this.previousStep()
+                          this.previousStep();
                           EventBus.$emit(
                             "open_alert",
                             "error",
@@ -416,8 +410,8 @@ export default {
           } else {
             EventBus.$emit("open_alert", "error", "Sign up form incomplete");
           }
-        }
-      }
+        // }
+      
     },
     cleanStoreUrl(blur) {
       if (this.store_slug) {

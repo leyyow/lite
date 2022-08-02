@@ -651,7 +651,7 @@ export default {
     fetchStore();
 
     this.verified = this.store?.verified;
-    // console.log(this.store)
+    console.log(this.verified)
 
     if (this.verified) {
       for (var i = 1; i < this.verified.length; i++) {
@@ -662,7 +662,7 @@ export default {
         }
       }
       if (this.verified[0] == 0) {
-        // this.$store.commit(mutationTypes.EMAIL_VERIFIED, false);
+        this.$store.commit(mutationTypes.EMAIL_VERIFIED, false);
       } else {
         this.$store.commit(mutationTypes.EMAIL_VERIFIED, true);
       }

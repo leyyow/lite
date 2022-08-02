@@ -159,17 +159,18 @@
 
                 size="large"
                 label="Login"
+                :loading="loading"
                 :block="true"
                 :primary="true"
                 @onClick="login()"
               />
 
-              <!-- <p class="text-body-2 mt-5">
+              <p class="text-body-2 mt-5">
                 Don't have a store?
-                <router-link to="/"
+                <router-link to="/register"
                   ><span class="primary_link">Create one</span></router-link
                 >
-              </p> -->
+              </p>
             </v-form>
           </div>
         </v-col>
@@ -207,6 +208,7 @@ export default {
     TextInput,
   },
   data: () => ({
+    loading: false,
     showPassword: false,
     email: null,
     password: null,
@@ -234,7 +236,8 @@ export default {
           username: this.username.trim().toLowerCase(),
           password: this.password,
         };
-        // this.loading = true;
+        console.log(data)
+        this.loading = true;
         apiLogin(data)
           .then((res) => {
             window.sessionStorage.setItem("leyyow_token", res.data.token);
@@ -265,7 +268,7 @@ export default {
             if (store.verified[0] == 0) {
               this.$store.commit(mutationTypes.EMAIL_VERIFIED, false);
             }
-            this.$router.push("/dash");
+            this.$router.push("/inventory");
           })
           .catch(() => {
             EventBus.$emit(

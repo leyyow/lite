@@ -1,17 +1,23 @@
 <template>
   <!-- <button type="button" :class="classes" @click="onClick" :style="style"></button> -->
   <div :style="containerStyle">
-
     <v-btn
       depressed
-      
       :block="block"
       v-bind="getSize"
       :class="classes"
       @click="onClick"
       :disabled="disabled"
     >
-      {{ label }}
+      <p style="visibility: hidden" v-if="loading">kd</p>
+      <img
+        v-if="loading"
+        src="../../assets/loader.gif"
+        alt=""
+        style="position: absolute; transform: scale(.25)"
+      />
+
+      <div v-else>{{ label }}</div>
 
       <slot name="child"></slot>
     </v-btn>
@@ -19,13 +25,16 @@
 </template>
 
 <script>
-
 import "./button.css";
 
 export default {
   name: "my-button",
 
   props: {
+    loading: {
+      type: Boolean,
+      default: false,
+    },
     label: {
       type: String,
     },
@@ -47,7 +56,7 @@ export default {
     size: {
       type: String,
       default: "default",
-      validator: function (value) {
+      validator: function(value) {
         return ["small", "default", "large"].indexOf(value) !== -1;
       },
     },
@@ -82,9 +91,8 @@ export default {
 </script>
 
 <style scoped>
-#btn{
-   /* background: transparent url('../../assets/loading.gif')  no-repeat center center; */
-   /* height: 5rem; */
-  
+#btn {
+  /* background: transparent url('../../assets/loading.gif')  no-repeat center center; */
+  /* height: 5rem; */
 }
 </style>

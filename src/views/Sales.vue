@@ -1,6 +1,6 @@
 <template>
   <div class="pa-3">
-    <topNav :addProduct="addProduct">Inventory</topNav>
+    <topNav :addProduct="addProduct">Sales</topNav>
     <div
       :style="
         `margin-top: 4rem; min-height: 80vh; ${
@@ -18,13 +18,13 @@
             class="justify-center"
             style="font-weight: 600; font-size: 1.3rem"
           >
-            No products added
+            No registers sales added
           </h3>
           <p>Add products to your store so you can take orders easily.</p>
 
           <Button
             :block="true"
-            label="Add Product"
+            label="Add Sales"
             :primary="true"
             size="large"
             @onClick="addProduct()"
@@ -70,8 +70,7 @@
 
         <div
           style="
-        
-            display: flex;
+                       display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
           "
@@ -86,7 +85,7 @@
         </div>
       </v-container>
       <v-navigation-drawer app right :width="400" v-model="edit_product_drawer">
-        <AddOrEditProduct
+        <AddOrEditSale
           v-if="edit_product_drawer"
           :variant_payload="variant_payload"
           @back="backToProductView()"
@@ -119,7 +118,7 @@ import { fethcStoreInventory } from "@/services/apiServices";
 import topNav from "@/components/TopNav";
 import Product from "@/components/Product";
 import ProductView from "@/components/ProductView";
-import AddOrEditProduct from "@/components/AddOrEditProduct";
+import AddOrEditSale from "@/components/AddOrEditSale";
 import MenuSpacer from "@/components/MenuSpacer.vue";
 
 export default {
@@ -130,7 +129,7 @@ export default {
     topNav,
     Product,
     ProductView,
-    AddOrEditProduct,
+    AddOrEditSale,
     MenuSpacer,
     TextInput,
   },

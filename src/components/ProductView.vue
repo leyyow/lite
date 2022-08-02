@@ -18,9 +18,9 @@
         <v-img
           :src="currentProduct.product_image"
           lazy-src="https://picsum.photos/id/11/100/60"
-          height="80"
-          width="80"
-          class="rounded-md"
+          height="190px"
+          width="100%"
+          style="border-radius: 12px;"
         >
           <template v-slot:placeholder>
             <v-row class="fill-height ma-0" align="center" justify="center">
@@ -61,149 +61,7 @@
             >
           </v-col>
         </v-row>
-
-        <v-divider class="ma-5 mr-0 ml-0"></v-divider>
-
-        <v-row class="pb-3">
-          <v-col cols="5" class="pa-0">
-            <v-card-text class="text-left text-body-2 pb-0"
-              >Stock Quantity</v-card-text
-            >
-          </v-col>
-          <v-col cols="7" class="pa-0">
-            <v-card-text
-              class="text-right text-subtitle-1 text-capitalize font-weight-medium pb-0 text-color-primaryDark"
-              >{{ currentProduct.total_stock }}</v-card-text
-            >
-          </v-col>
-        </v-row>
-
-        <v-divider class="ma-5 mr-0 ml-0"></v-divider>
-
-        <div v-if="currentProduct.has_discount">
-          <v-row class="pb-3">
-            <v-col cols="5" class="pa-0">
-              <v-card-text class="text-left text-body-2 pb-0"
-                >Discount</v-card-text
-              >
-            </v-col>
-            <v-col cols="7" class="pa-0">
-              <v-card-text class="text-right text-body-2 pb-0"
-                >Type: {{ discount_type }}</v-card-text
-              >
-              <v-card-text class="text-right text-body-2 pb-0"
-                >Amount taken off: {{ currentProduct.discount }}</v-card-text
-              >
-              <v-card-text class="text-right text-body-2 pb-0"
-                >New price {{ currentProduct.discount_type }}</v-card-text
-              >
-            </v-col>
-          </v-row>
-          <v-divider class="ma-5 mr-0 ml-0"></v-divider>
-        </div>
-
-        <div
-          style="display: flex; align-items: center justify-content: space-between"
-        >
-          <v-card-text class="text-left text-body-2 pb-0 pt-5 pl-0"
-            >Display Product</v-card-text
-          >
-
-          <div class="d-flex align-center">
-            <v-icon style="" v-if="currentProduct.display == true"
-              >mdi-store-outline</v-icon
-            >
-            <v-icon style="" v-else>mdi-store-remove</v-icon>
-            <span class="switch ml-3">
-              <v-switch
-                color="success"
-                style=""
-                id="switch"
-                v-model="currentProduct.display"
-                inset
-                disabled
-              >
-              </v-switch>
-            </span>
-          </div>
-        </div>
-
-        <v-divider class="ma-5 mr-0 ml-0"></v-divider>
-
-        <v-card-text class="text-left text-body-2 pa-0 pb-5"
-          >Variant and Variant Quantity</v-card-text
-        >
-
-        <!-- <v-row class="pb-5" v-if="currentProduct.first_variant_name">
-          <v-col cols="5" class="pa-0">
-            <v-card-text class="text-left text-body-2 pb-0">{{
-              currentProduct.first_variant_name
-            }}</v-card-text>
-          </v-col>
-          <v-col cols="7" class="pa-0">
-            <v-card-text class="text-right text-subtitle-2 text-capitalize font-weight-medium pb-0 text-color-primaryDark">{{
-              currentProduct.first_variant
-            }}</v-card-text>
-          </v-col>
-        </v-row>
-        <v-row class="pb-5" v-if="currentProduct.second_variant_name">
-          <v-col cols="5" class="pa-0">
-            <v-card-text class="text-left text-body-2 pb-0">{{
-              currentProduct.second_variant_name
-            }}</v-card-text>
-          </v-col>
-          <v-col cols="7" class="pa-0">
-            <v-card-text class="text-right text-subtitle-2 text-capitalize font-weight-medium pb-0 text-color-primaryDark">{{
-              currentProduct.second_variant
-            }}</v-card-text>
-          </v-col>
-        </v-row> -->
-        <v-row class="pb-5" v-if="currentProduct.third_variant_name">
-          <v-col cols="5" class="pa-0">
-            <v-card-text class="text-left text-body-2 pb-0">{{
-              currentProduct.third_variant_name
-            }}</v-card-text>
-          </v-col>
-          <v-col cols="7" class="pa-0">
-            <v-card-text class="text-right text-body-2 pb-0">{{
-              currentProduct.third_variant
-            }}</v-card-text>
-          </v-col>
-        </v-row>
-        <v-simple-table
-          v-if="currentProduct.has_variant"
-          style="border: 0.5px solid #E2E8F0;box-shadow: -2px 8px 16px rgba(181, 181, 181, 0.08);
-border-radius: 8px;padding: .5rem"
-        >
-          <template v-slot:default>
-            <thead>
-              <tr>
-                <th class="text-left" style="color: rgba(51, 65, 85, 0.33)">
-                  Variant Name
-                </th>
-                <th class="text-left pl-0" style="color: rgba(51, 65, 85, 0.33)">
-                  Qty
-                </th>
-                <th class="text-left pl-0" style="color: rgba(51, 65, 85, 0.33)">
-                  Price
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <div></div>
-              <tr v-for="vars in variants" :key="vars.name">
-                <td class="pr-0 text-left">{{ vars.name && vars.name.replaceAll('/', ' / ') }}</td>
-                <td class="pl-0">
-                  {{ vars.qty }}
-                </td>
-                <td class="pl-0 pr-0">
-                  {{ vars.price }}
-                </td>
-              </tr>
-            </tbody>
-          </template>
-        </v-simple-table>
-
+        
         <v-divider class="ma-5 mr-0 ml-0"></v-divider>
 
         <v-card-text class="text-left text-body-2 pa-0"

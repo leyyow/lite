@@ -61,16 +61,15 @@ export default {
     message: "",
     modal: "",
     show_alert: false,
+    verified: ''
   }),
   computed: {
     ...mapGetters({
       logged_in: "getLoggedIn",
+      store: "getStore"
     }),
   },
-  mounted() {
-    // console.log(this.logged_in);
-    // console.log(this.$route.path)
-  },
+ 
   created() {
     let token = window.sessionStorage.getItem("leyyow_token");
     if (token) {

@@ -108,6 +108,7 @@ import { EventBus } from "@/services/eventBus";
 import { verifyEmailPhone } from "@/services/apiServices";
 import * as mutationTypes from "@/store/mutationTypes";
 import Button from "@/components/Button";
+import { updateStore } from '../services/apiServices';
 // import v-otp-input from "vuetify"
 
 export default {
@@ -172,6 +173,13 @@ export default {
     resolveOTP() {
       verifyEmailPhone(this.otp, this.store.email) // modify to use account email not store email
         .then((res) => {
+
+        updateStore({verified: '1' + this.store.verified.substr(1)}, this.store.id)
+          .then((res) => {
+            let store = res.data;
+            this.$store.commit(mutationTypes.SAVE_STORE, store);
+            EventBus.$emit("open_alert", "success", "store updated");
+          })
           // console.log(res);
           if (res.data.status == "Success") {
             this.otp = "";

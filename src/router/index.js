@@ -15,14 +15,14 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/About.vue"),
   },
-  {
-    name: "Dashboard", // *
-    path: "/dash",
-    component: () =>
-      import(
-        /* webpackChunkName: "forgot_password" */ "../views/Dashboard.vue"
-      ),
-  },
+  // {
+  //   name: "Dashboard", // *
+  //   path: "/dash",
+  //   component: () =>
+  //     import(
+  //       /* webpackChunkName: "forgot_password" */ "../views/Dashboard.vue"
+  //     ),
+  // },
   {
     name: "ForgotPassword",
     path: "/forgot_password",
@@ -51,13 +51,19 @@ const routes = [
       import(/* webpackChunkName: "login" */ "../views/Inventory.vue"),
   },
   {
+    name: "Sales", // *
+    path: "/sales",
+    component: () =>
+      import(/* webpackChunkName: "login" */ "../views/Sales.vue"),
+  },
+  {
     name: "Login",
     path: "/login",
     component: () =>
       import(/* webpackChunkName: "login" */ "../views/auth/Login.vue"),
   },
   {
-    name: "Settings", // *
+    name: "Manage", // *
     path: "/settings",
     component: () =>
       import(/* webpackChunkName: "login" */ "../views/Settings.vue"),
@@ -70,7 +76,7 @@ const routes = [
   },
   {
     name: "Register",
-    path: "/admin/register",
+    path: "/register",
     component: () =>
       import(/* webpackChunkName: "register" */ "../views/auth/Register.vue"),
   },
@@ -87,8 +93,8 @@ router.beforeEach((to, from, next) => {
 
   let whitelist = [
     "/",
+    "/register",
     "/login",
-    "/admin/register",
     "/forgot_password", // "/set-new-password/"
   ];
   // let whitelist = [
@@ -101,7 +107,7 @@ router.beforeEach((to, from, next) => {
   if (whitelist.includes(to.path)) {
     if (token) {
       next({
-        name: "Dashboard",
+        name: "Inventory",
       });
     } else {
       next();

@@ -17,15 +17,16 @@
           </h1>
 
           <v-spacer></v-spacer>
-          <v-icon class="mr-3">mdi-bell-outline</v-icon>
-          <img
-          @click="$router.push('/profile')"
-            :src="getStore.logo || require('@/assets/user.png')"
-            class="mx-2"
-            height="32px"
-            width="32px"
-            style="border-radius: 4px; object-fit: cover; ;object-position: top"
-          />
+          <Button
+              :block="true"
+              :primary="true"
+              :containerStyle="{ marginTop: '.2rem' }"
+              @onClick="addProduct"
+            >
+              <template v-slot:child>
+                <v-icon>mdi-plus</v-icon>
+              </template>
+            </Button>
           <v-menu
             style="box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.04);"
             bottom
@@ -62,7 +63,7 @@
         </div>
 
         <div
-          v-if="!getEmailStatus"
+          v-if="!emailStatus"
           style="bottom: -5rem; margin: 0 10px; left: 0;  z-index: 100;background: #FFE8E5;border-radius: 8px;padding: 13px 11px; width: 95%; display: flex;align-items: flex-start; justify-content: space-between  "
         >
           <p class="text-left caption" style="color: #ED6555; width: 70%">
@@ -76,21 +77,29 @@
           </button>
         </div>
       </div>
+       
 
       <!-- </v-breadcrumbs>       -->
     </v-app-bar>
+    
   </div>
+  
 </template>
 
 <script>
 import { EventBus } from "@/services/eventBus";
 import * as mutationTypes from "@/store/mutationTypes";
 import { mapGetters } from "vuex";
+import Button from "@/components/Button";
+// import AddOrEditProduct from "@/components/AddOrEditProduct";
 
 export default {
   name: "topNav",
-  data: () => ({}),
+  data: () => ({verified: '', emailStatus: false}),
+  props: ['addProduct'],
+  components: {Button},
   methods: {
+
     logout() {
       // let store = {};
       sessionStorage.clear();
@@ -108,6 +117,25 @@ export default {
   },
   computed: {
     ...mapGetters(["getEmailStatus", "getStore"]),
+  },
+   mounted() {
+
+    this.verified = this.getStore?.verified;
+
+    if (this.verified) {
+   
+      if (this.verified[0] == 0) {
+        this.$store.commit(mutationTypes.EMAIL_VERIFIED, false);
+        this.emailStatus = false;
+      } else {
+        this.$store.commit(mutationTypes.EMAIL_VERIFIED, true);
+        this.emailStatus = true;
+
+
+      }
+    }
+    // console.log(this.logged_in);
+    // console.log(this.$route.path)
   },
 };
 </script>

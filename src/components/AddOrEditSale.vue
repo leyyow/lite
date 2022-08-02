@@ -3,7 +3,7 @@
     <h2 class="text-left text-h6 ma-5" @click="back()">
       <v-icon>mdi-chevron-left</v-icon>
       <span v-if="currentProduct">Edit {{ currentProduct.product_name }}</span>
-      <span v-else>Add product</span>
+      <span v-else>Add Sale</span>
     </h2>
     <v-icon class="mr-5" style="float: right; top: -47px;" @click="close"
       >mdi-close-thick</v-icon
@@ -116,7 +116,7 @@
         ></v-text-field>
         <v-card-text
           v-if="!currentProduct"
-          class="text-left text-body-2 pt-0 pl-0 mt-1 mb-5 describe"
+          class="text-left text-body-2 pt-0 mt-1 mb-5 describe"
           >Give your product a short and clear name.</v-card-text
         >
         <v-card-text class="text-left text-body-2 pb-0 mt-5 px-0"
@@ -343,8 +343,7 @@ export default {
       }
       if (this.product.id) {
         // console.log(data, this.variants_with_options);
-        if(this.product.product_name){
- updateProduct(data, this.product.id)
+        updateProduct(data, this.product.id)
           .then(() => {
             EventBus.$emit(
               "open_alert",
@@ -382,12 +381,7 @@ export default {
             this.loading = false;
             this.currentProduct ? this.$emit("back") : this.close();
           });
-      
-        }else {
-        EventBus.$emit("open_alert", "error", "please Enter a product name");
-
-        }
-       } else {
+      } else {
         EventBus.$emit("open_alert", "error", "please upload a product image");
       }
       this.get_variants = false;
