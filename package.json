@@ -1,5 +1,5 @@
 {
-  "name": "studio",
+  "name": "feedback",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,17 +10,23 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
+    "@cypress/vue": "^4.0.0",
+    "@cypress/webpack-dev-server": "^2.0.0",
     "@vue/composition-api": "^1.4.3",
     "@vuelidate/core": "^2.0.0-alpha.33",
     "@vuelidate/validators": "^2.0.0-alpha.26",
+    "ant-design-vue": "^1.7.2",
     "axios": "^0.21.4",
     "core-js": "^3.6.5",
+    "cypress": "^10.3.0",
     "dayjs": "^1.10.7",
     "jshint": "^2.13.1",
     "naija-state-local-government": "^1.1.2",
+    "numeral": "^2.0.6",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
-    "vuetify": "^2.4.0",
+    "vue-toast-notification": "^0.6.2",
+    "vuetify": "2.6.4",
     "vuex": "^3.4.0",
     "vuex-persist": "^3.1.3"
   },

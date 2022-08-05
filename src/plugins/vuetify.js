@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import Vuetify from 'vuetify/lib';
+import Vuetify from 'vuetify';
 import ArrowDown from '@/components/Icons/ArrowDown.vue'
 import CurvedGraph from '@/components/Icons/CurvedGraph.vue'
 import Filter from '@/components/Icons/Filter.vue'
@@ -20,6 +20,7 @@ export default new Vuetify({
         secondary: '#424242',
         accent: '#82B1FF',
         error: '#FF5252',
+        error2: '#ED6555',
         info: '#2196F3',
         success: '#4CAF50',
         warning: '#FFC107',

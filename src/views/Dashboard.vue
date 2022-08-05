@@ -1,33 +1,38 @@
 <template>
   <div class="pa-5 mb-5">
     <topNav>Dashboard</topNav>
-    <div style="width: 100%; height: 4em;marginTop:4rem">
-      <h2 class="title" style="margin-top: 1em">
+
+    <div
+      :style="
+        `width: 100%; height: 4em;marginBottom: .8rem; ${
+          email_verified ? 'marginTop:4rem' : 'marginTop:8rem'
+        }`
+      "
+    >
+      <h2 class="title" style="margin-top: 1em" v-if="store.store_name">
         <!-- Good {{ time }} {{ store.store_name }} -->
-        Welcome, Abdulraheem 😎
+        Welcome, {{ store.store_name }} 😎
       </h2>
+      <p class="body-2" v-if="setup_steps < 4">
+        Let’s get you started with Leyyow
+      </p>
+      <p class="body-2" v-else>Here’s how your bussiness is doing</p>
     </div>
 
     <!-- <div class="d-flex justify-end"> -->
-    <v-select
-      style="float: right; width: 10rem;"
-      class="d-inline-block right"
-      :items="['This week', 'This month', 'This year']"
-     v-model="timeFrame"
-      outlined
-    ></v-select>
+
     <!-- </div> -->
 
     <!-- store setup -->
     <v-container
       v-if="setup_steps < 4"
       class="rounded-xl mt-4"
-      style="border: 1px solid #e2e8f0; overflow: hidden; margin-top: 1rem"
+      style="border: 0.5px solid #e2e8f0; overflow: hidden; margin-top: 1rem;"
       fluid
       fill-height
       pa-0
     >
-      <div>
+      <div style="width: 100%">
         <p class="text-left pa-5 ma-0">
           Setup progress: <span>{{ setup_steps }}/4</span>
         </p>
@@ -40,9 +45,9 @@
               flat
               outlined
               style="
-                background: #f6f8fa;
                 border: none;
-                border-top: 1px solid #e2e8f0;
+                border-top: 0.5px solid #e2e8f0;
+                background: #FDFDFD;
               "
             >
               <v-checkbox
@@ -56,7 +61,7 @@
               </v-checkbox>
               <v-card-title
                 class="pa-0"
-                style="font-size: 1.1rem; margin-bottom: -4px"
+                style="font-size: 1.1rem; margin-bottom: -4px; color: #143E32;"
                 >{{ dash.title }}</v-card-title
               >
               <v-card-text class="pa-0 pb-3">{{ dash.text }}</v-card-text>
@@ -85,11 +90,22 @@
     <v-container
       v-if="setup_steps > 3"
       class="rounded-lg pa-4"
-      style="border: 1px solid #e2e8f0; background: #fff; overflow: hidden"
+      style="border: 0.4px solid #e2e8f0; background: #FDFDFD; overflow: hidden"
       fluid
       fill-height
       pa-0
     >
+      <div v-if="verified" style="width: 100%">
+        <!-- <p class="caption text-right">Compared to</p> -->
+        <v-select
+          v-if="setup_steps > 3"
+          style="float: right; width: 10rem;"
+          class="d-inline-block left"
+          :items="['Today', 'This month', 'This year']"
+          v-model="timeFrame"
+          outlined
+        ></v-select>
+      </div>
       <v-card
         v-for="(data, i) in metrics"
         :key="i"
@@ -98,7 +114,7 @@
       >
         <div
           class="pa-5"
-          style="width: 100%; box-shadow: -2px 8px 16px rgba(14, 10, 10, 0.05;"
+          style="width: 100%; box-shadow: -2px 8px 16px rgba(14, 10, 10, 0.05;border: 0.5px solid #E2E8F0;"
         >
           <v-row>
             <v-col cols="3">
@@ -110,16 +126,12 @@
               </h5>
               <p class="text-left mb-0 medium h1">
                 {{ data.currency }}{{ data.data }}
-                <span
-                  :class="data.up ? 'gain' : 'loss'"
-                  class="body1"
-                  style="letter-spacing: -5px"
-                >
+                <span :class="data.up ? 'gain' : 'loss'" class="body1">
                   <!-- <v-icon :class="data.up ? 'gain' : 'loss'" v-if="data.up"
                     >mdi-menu-up</v-icon
                   > -->
                   <svg
-                    class="mx-3"
+                    class="mx-1"
                     v-if="data.up"
                     width="12"
                     height="12"
@@ -146,11 +158,17 @@
                       fill="#FF0000"
                     />
                   </svg>
-
-                  {{ isNaN(data.percent) ? 0 : data.percent }}
+                  {{ data.up ? "+" : "-" }} {{ data.percent }}
                 </span>
               </p>
-              <div class="text-left caption">vs {{timeFrame.replace('This', 'last')}}</div>
+              <div class="text-left caption">
+                vs
+                {{
+                  timeFrame === "Today"
+                    ? "Yesterday"
+                    : `last ${timeFrame.split(" ")[1]} `
+                }}
+              </div>
             </v-col>
           </v-row>
         </div>
@@ -173,6 +191,7 @@ import Arrows from "@/components/Icons/Arrows.vue";
 import Transaction from "@/components/Icons/Transaction.vue";
 import Sale from "@/components/Icons/Sale.vue";
 import Cart from "@/components/Icons/Cart.vue";
+import { fetchStore } from "@/services/apiServices";
 
 export default {
   name: "Dashboard",
@@ -191,37 +210,37 @@ export default {
         status: 0,
         title: "Payments",
         text: "Get paid by customers",
-        btn_title: "Setup payment account",
+        btn_title: "Get paid",
         modal: "set_bank",
       },
       {
         status: 0,
         title: "Store details",
-        text: "Store contacts, etc",
-        btn_title: "Add store details",
+        text: "Enter location & more",
+        btn_title: "Store details",
         modal: "store_details",
       },
       {
         status: 0,
         title: "Business hours",
         text: "Opening & closing hours",
-        btn_title: "Set hours",
+        btn_title: " Bussiness hours",
         modal: "business_hours",
       },
       {
         status: 0,
-        title: "Shipping",
-        text: "Delivery & pick-up arrangements",
-        btn_title: "Set shipping",
+        title: "Delivery fees",
+        text: "Delivery & pickup plan",
+        btn_title: "Shipping",
         modal: "shipping",
       },
     ],
     // dialog: true,
-    timeFrame: 'This week',
+    timeFrame: "Today",
     dialog: false, // default is false
     modal: null,
     setup_steps: 0,
-    verified: "00000",
+    verified: null,
   }),
   methods: {
     openDialog(setup) {
@@ -251,116 +270,388 @@ export default {
         .subtract(1, "days")
         .format("DD MMM YYYY");
     },
+    lastMonth() {
+      return dayjs()
+        .subtract(30, "days")
+        .format("DD MMM YYYY");
+    },
     reshapedOrders() {
       return this.orders.map((order) => {
         let date = dayjs(order.created).format("DD MMM YYYY");
+        Date.prototype.isLeapYear = function() {
+          var year = this.getFullYear();
+          if ((year & 3) != 0) return false;
+          return year % 100 != 0 || year % 400 == 0;
+        };
+
+        // Get Day of Year
+        Date.prototype.getDOY = function() {
+          var dayCount = [
+            0,
+            31,
+            59,
+            90,
+            120,
+            151,
+            181,
+            212,
+            243,
+            273,
+            304,
+            334,
+          ];
+          var mn = this.getMonth();
+          var dn = this.getDate();
+          var dayOfYear = dayCount[mn] + dn;
+          if (mn > 1 && this.isLeapYear()) dayOfYear++;
+          return dayOfYear;
+        };
+        // console.log(
+        //   new Date(new Date().getFullYear(), 0, 1).getTime() -
+        //     new Date(date).getTime() <=
+        //     365 * 24 * 60 * 60 * 1000
+        // );
+
         return {
           ...order,
           date,
           isToday: date === this.today,
           isYesterday: date === this.yesterday,
+          isThisMonth:
+            new Date().getTime() - new Date(date).getTime() <=
+            new Date().getDate() * 24 * 60 * 60 * 1000,
+          isLastMonth:
+            new Date(date).getTime() <
+              new Date(
+                new Date().getFullYear(),
+                new Date().getMonth(),
+                1
+              ).getTime() &&
+            new Date(date).getTime() >=
+              new Date(new Date().getFullYear(), new Date().getMonth(), 1) -
+                2629746000,
+          isThisYear:
+            new Date().getTime() - new Date(date).getTime() <=
+            new Date().getDOY() * 24 * 60 * 60 * 1000,
+          isLastYear:
+            new Date(new Date().getFullYear(), 0, 1).getTime() -
+              new Date(date).getTime() <=
+            365 * 24 * 60 * 60 * 1000,
         };
       });
     },
     metrics() {
       // let todayOrders = this.reshapedOrders.filter((order) => order.isToday);
-      let todayOrders = this.reshapedOrders; // all time not today only
-      let yesterdayOrders = this.reshapedOrders.filter(
-        (order) => order.isYesterday
-      );
+      if (this.timeFrame === "Today") {
+        let todayOrders = this.reshapedOrders.filter((order) => order.isToday);
+        let yesterdayOrders = this.reshapedOrders.filter(
+          (order) => order.isYesterday
+        );
 
-      let ordersCount = this.reshapedOrders.length;
-      let todaySalesCount = this.reshapedOrders.filter((order) => order.isToday)
-        .length;
-      let yesterdaySalesCount = this.reshapedOrders.filter(
-        (order) => order.isYesterday
-      ).length;
+        // let ordersCount = this.reshapedOrders.length;
+        let todaySalesCount = this.reshapedOrders.filter(
+          (order) => order.isToday
+        ).length;
+        let yesterdaySalesCount = this.reshapedOrders.filter(
+          (order) => order.isYesterday
+        ).length;
 
-      let totalSales = this.reshapedOrders.reduce((agg, curr) => {
-        agg += curr.total_amount / 100;
-        return agg;
-      }, 0);
-      let todaySalesTotal = todayOrders.length
-        ? todayOrders.reduce((agg, curr) => {
-            agg += curr.total_amount / 100;
-            return agg;
-          }, 0)
-        : 0;
-      let yesterdaySalesTotal = yesterdayOrders.length
-        ? yesterdayOrders.reduce((agg, curr) => {
-            agg += curr.total_amount / 100;
-            return agg;
-          }, 0)
-        : 0;
+        // let totalSales = this.reshapedOrders.reduce((agg, curr) => {
+        //   agg += curr.products_total / 100;
+        //   return agg;
+        // }, 0);
+        // console.log('today', todayOrders, 'yesterday', yesterdayOrders, totalSales)
 
-      let changeInSales = todaySalesTotal - yesterdaySalesTotal;
-      let changeInSalesCount = todaySalesCount - yesterdaySalesCount;
+        let todaySalesTotal = todayOrders.length
+          ? todayOrders.reduce((agg, curr) => {
+              agg += curr.products_total / 100;
+              return agg;
+            }, 0)
+          : 0;
+        let yesterdaySalesTotal = yesterdayOrders.length
+          ? yesterdayOrders.reduce((agg, curr) => {
+              agg += curr.products_total / 100;
+              return agg;
+            }, 0)
+          : 0;
 
-      let avgCheckoutSize = totalSales / ordersCount;
-      let todayAvgCheckoutSize = todaySalesCount
-        ? todaySalesTotal / todaySalesCount
-        : 0;
-      let yesterdayAvgCheckoutSize = yesterdaySalesTotal / yesterdaySalesCount;
-      let changeInAvgCheckoutSize =
-        todayAvgCheckoutSize - yesterdayAvgCheckoutSize;
+        let changeInSales = todaySalesTotal - yesterdaySalesTotal;
+        let changeInSalesCount = todaySalesCount - yesterdaySalesCount;
 
-      return [
-        {
-          title: "Total sales",
-          // data: `NGN ${numeral(totalSales).format("0,0")}`,
-          data: Math.round(totalSales),
-          percent: `${Math.abs(changeInSales / yesterdaySalesTotal) * 100}%`,
-          icon: Sale,
-          colour: "#FFC35014",
-          currency: "",
-          // up: changeInSales > 0,
-          up: true,
-        },
-        {
-          title: "Number of transactions",
-          data: this.reshapedOrders.length,
-          percent: `${Math.abs(changeInSalesCount / yesterdaySalesCount) *
-            100}%`,
-          icon: Transaction,
-          colour: "#FFC35014",
-          // up: changeInSales > 0,
-          up: false,
-        },
-        {
-          title: "Number of store visit",
-          // data: `NGN ${numeral(avgCheckoutSize).format("0,0")}`,
-          data: Math.round(avgCheckoutSize),
-          percent: `${Math.abs(
-            changeInAvgCheckoutSize / yesterdayAvgCheckoutSize
-          ) * 100}%`,
-          icon: Cart,
-          colour: "#FFC35014",
-          currency: "",
-          // up: changeInSales > 0,
-          up: true,
-        },
-        {
-          title: "Number of return visit",
-          data: 0,
-          percent: "4%",
-          icon: Arrows,
-          colour: "#FFC35014",
-          up: true,
-        },
-        // {
-        //   title: "Return visits",
-        //   data: "18",
-        //   percent: "5%",
-        //   // icon: "mdi-account-sync",
-        //   colour: "#FFC35014",
-        //   up: false,
-        //   // up: changeInSales > 0,
-        // },
-      ];
+        // let avgCheckoutSize = totalSales / ordersCount;
+        // let todayAvgCheckoutSize = todaySalesCount
+        //   ? todaySalesTotal / todaySalesCount
+        //   : 0;
+        // let yesterdayAvgCheckoutSize =
+        //   yesterdaySalesTotal / yesterdaySalesCount;
+        // let changeInAvgCheckoutSize =
+        //   todayAvgCheckoutSize - yesterdayAvgCheckoutSize;
+        return [
+          {
+            title: "Total sales",
+            // data: `NGN ${numeral(totalSales).format("0,0")}`,
+            data: Math.round(todaySalesTotal).toLocaleString("en-US"),
+            percent: `${(isNaN(Math.abs(changeInSales / (yesterdaySalesTotal || 1)))
+              ? 0
+              : Math.abs(changeInSales / (yesterdaySalesTotal || 1)) * 100)}%`,
+            icon: Sale,
+            colour: "#FFC35014",
+            currency: "",
+            up: changeInSales >= 0,
+          },
+          {
+            title: "Number of transactions",
+            data: todaySalesCount,
+            percent: `${
+              isNaN(Math.abs(changeInSalesCount / (yesterdaySalesCount || 1)))
+                ? 0
+                : Math.abs(changeInSalesCount / (yesterdaySalesCount || 1)) *
+                  100
+            }%`,
+            icon: Transaction,
+            colour: "#FFC35014",
+            up: changeInSales >= 0,
+          },
+          {
+            title: "Number of store visit",
+            // data: `NGN ${numeral(avgCheckoutSize).format("0,0")}`,
+            data: "--",
+            percent: "--%",
+            // percent: `${
+            //   isNaN(
+            //     Math.abs(changeInAvgCheckoutSize / yesterdayAvgCheckoutSize)
+            //   )
+            //     ? 0
+            //     : Math.abs(changeInAvgCheckoutSize / yesterdayAvgCheckoutSize) *
+            //       100
+            // }%`,
+            icon: Cart,
+            colour: "#FFC35014",
+            currency: "",
+            up: true,
+          },
+          {
+            title: "Number of return visit",
+            data: "--",
+            percent: "--%",
+            icon: Arrows,
+            colour: "#FFC35014",
+            up: true,
+          },
+        ];
+      }
+      if (this.timeFrame === "This month") {
+        // let todayOrders = this.reshapedOrders; // all time not today only
+        let thisMonthOrders = this.reshapedOrders.filter(
+          (order) => order.isThisMonth
+        );
+
+        let lastMonthOrders = this.reshapedOrders.filter(
+          (order) => order.isLastMonth
+        );
+
+        // let ordersCount = this.reshapedOrders.length;
+        let thisMonthSalesCount = this.reshapedOrders.filter(
+          (order) => order.isThisMonth
+        ).length;
+        let lastMonthSalesCount = this.reshapedOrders.filter(
+          (order) => order.isLastMonth
+        ).length;
+
+        // let totalSales = this.reshapedOrders.reduce((agg, curr) => {
+        //   agg += curr.total_amount / 100;
+        //   return agg;
+        // }, 0);
+        let thisMonthSalesTotal = thisMonthOrders.length
+          ? thisMonthOrders.reduce((agg, curr) => {
+              agg += curr.products_total;
+              return agg;
+            }, 0)
+          : 0;
+        let lastMonthSalesTotal = lastMonthOrders.length
+          ? lastMonthOrders.reduce((agg, curr) => {
+              agg += curr.products_total / 100;
+              return agg;
+            }, 0)
+          : 0;
+
+        let changeInSales = thisMonthSalesTotal - lastMonthSalesTotal;
+        let changeInSalesCount = thisMonthSalesCount - lastMonthSalesCount;
+
+        // let avgCheckoutSize = totalSales / ordersCount;
+        // let thisMonthAvgCheckoutSize = thisMonthSalesCount
+        //   ? thisMonthSalesTotal / thisMonthSalesCount
+        //   : 0;
+        // let lastMonthAvgCheckoutSize =
+        //   lastMonthSalesTotal / lastMonthSalesCount;
+
+        // let changeInAvgCheckoutSize =
+        //   thisMonthAvgCheckoutSize - lastMonthAvgCheckoutSize;
+        // console.log(thisMonthSalesTotal, lastMonthSalesTotal);
+        // console.log(lastMonthSalesCount, changeInSalesCount )
+
+        return [
+          {
+            title: "Total sales",
+            // data: `NGN ${numeral(totalSales).format("0,0")}`,
+            data: Math.round(thisMonthSalesTotal).toLocaleString("en-US"),
+            percent: `${
+              isNaN(Math.abs(changeInSales / lastMonthSalesTotal))
+                ? 0
+                : Math.abs(changeInSales / lastMonthSalesTotal) * 100
+            }%`,
+            icon: Sale,
+            colour: "#FFC35014",
+            currency: "",
+            up: changeInSales >= 0,
+          },
+          {
+            title: "Number of transactions",
+            data: thisMonthSalesCount,
+            percent: `${
+              isNaN(Math.abs(changeInSalesCount))
+                ? 0
+                : Math.abs(changeInSalesCount) * 100
+            }%`,
+            icon: Transaction,
+            colour: "#FFC35014",
+            up: changeInSalesCount >= 0,
+          },
+          {
+            title: "Number of store visit",
+            // data: `NGN ${numeral(avgCheckoutSize).format("0,0")}`,
+            data: "--",
+            percent: "--",
+            // percent: `${(isNaN(
+            //   Math.abs(changeInAvgCheckoutSize / lastMonthAvgCheckoutSize)
+            // )
+            //   ? 0
+            //   : Math.abs(changeInAvgCheckoutSize / lastMonthAvgCheckoutSize)) *
+            //   100}%`,
+            icon: Cart,
+            colour: "#FFC35014",
+            currency: "",
+            up: true,
+          },
+          {
+            title: "Number of return visit",
+            data: "--",
+            percent: "--",
+            icon: Arrows,
+            colour: "#FFC35014",
+            up: true,
+          },
+        ];
+      }
+      if (this.timeFrame === "This year") {
+        // let todayOrders = this.reshapedOrders; // all time not today only
+        let thisYearOrders = this.reshapedOrders.filter(
+          (order) => order.isThisYear
+        );
+        let lastYearOrders = this.reshapedOrders.filter(
+          (order) => order.isLastYear
+        );
+
+        // let ordersCount = this.reshapedOrders.length;
+        let thisYearSalesCount = this.reshapedOrders.filter(
+          (order) => order.isThisYear
+        ).length;
+        let lastYearSalesCount = this.reshapedOrders.filter(
+          (order) => order.isLastYear
+        ).length;
+
+        // let totalSales = this.reshapedOrders.reduce((agg, curr) => {
+        //   agg += Number(curr.products_total);
+        //   return agg;
+        // }, 0);
+        let thisYearSalesTotal = thisYearOrders.length
+          ? thisYearOrders.reduce((agg, curr) => {
+              agg += Number(curr.products_total);
+              return agg;
+            }, 0)
+          : 0;
+        let lastYearSalesTotal = lastYearOrders.length
+          ? lastYearOrders.reduce((agg, curr) => {
+              agg += Number(curr.products_total);
+              return agg;
+            }, 0)
+          : 0;
+
+        let changeInSales = thisYearSalesTotal - lastYearSalesTotal;
+        let changeInSalesCount = thisYearSalesCount - lastYearSalesCount;
+
+        // let avgCheckoutSize = totalSales / ordersCount;
+        // let thisYearAvgCheckoutSize = thisYearSalesCount
+        //   ? thisYearSalesTotal / thisYearSalesCount
+        //   : 0;
+        // let lastYearAvgCheckoutSize = lastYearSalesTotal / lastYearSalesCount;
+
+        // let changeInAvgCheckoutSize =
+        //   thisYearAvgCheckoutSize - lastYearAvgCheckoutSize;
+        return [
+          {
+            title: "Total sales",
+            // data: `NGN ${numeral(totalSales).format("0,0")}`,
+            data: Math.round(thisYearSalesTotal).toLocaleString("en-US"),
+            percent: `${
+              isNaN(Math.abs(changeInSales / lastYearSalesTotal))
+                ? 0
+                : Math.floor(Math.abs(changeInSales / lastYearSalesTotal) * 100)
+            }%`,
+            icon: Sale,
+            colour: "#FFC35014",
+            currency: "",
+            up: changeInSales >= 0,
+          },
+          {
+            title: "Number of transactions",
+            data: thisYearSalesCount,
+            percent: `${
+              isNaN(Math.abs(changeInSalesCount / lastYearSalesCount))
+                ? 0
+                : Math.floor(
+                    Math.abs(changeInSalesCount / lastYearSalesCount) * 100
+                  )
+            }%`,
+            icon: Transaction,
+            colour: "#FFC35014",
+            up: changeInSales >= 0,
+          },
+          {
+            title: "Number of store visit",
+            // data: `NGN ${numeral(avgCheckoutSize).format("0,0")}`,
+            data: "--",
+            percent: "--",
+            // percent: `${
+            //   isNaN(Math.abs(changeInAvgCheckoutSize / lastYearAvgCheckoutSize))
+            //     ? 0
+            //     : Math.abs(changeInAvgCheckoutSize / lastYearAvgCheckoutSize) *
+            //       100
+            // }%`,
+            icon: Cart,
+            colour: "#FFC35014",
+            currency: "",
+            up: true,
+          },
+          {
+            title: "Number of return visit",
+            data: "--",
+            percent: "--",
+            icon: Arrows,
+            colour: "#FFC35014",
+            up: true,
+          },
+        ];
+      } else {
+        return null;
+      }
     },
   },
-  created() {
-    this.verified = this.store.verified;
+  mounted() {
+    fetchStore();
+
+    this.verified = this.store?.verified;
+    console.log(this.verified)
 
     if (this.verified) {
       for (var i = 1; i < this.verified.length; i++) {
@@ -370,16 +661,8 @@ export default {
           this.setup_steps += 1;
         }
       }
-
       if (this.verified[0] == 0) {
-        !this.email_verified
-          ? EventBus.$emit(
-              "open_alert",
-              "warning",
-              "email not verified. You can verify from here if you close this",
-              "Verify Email"
-            )
-          : "";
+        this.$store.commit(mutationTypes.EMAIL_VERIFIED, false);
       } else {
         this.$store.commit(mutationTypes.EMAIL_VERIFIED, true);
       }
@@ -398,5 +681,4 @@ export default {
 .loss {
   color: red;
 }
-
 </style>

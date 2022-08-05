@@ -1,11 +1,7 @@
 <template>
   <div>
     <v-row justify="center">
-      <v-dialog
-        v-model="dialog"
-        persistent
-        @click:outside="closeDialog"
-      >
+      <v-dialog v-model="dialog" persistent @click:outside="closeDialog">
         <div class="white rounded-xl" style="position: relative">
           <v-btn
             @click="closeDialog"
@@ -32,11 +28,19 @@
 
           <VerifyID v-if="propModal == 'verify_auth'" />
           <BankDetails v-if="propModal == 'set_bank'" />
-          <BusinessHours v-if="propModal == 'business_hours'" />
+          <BusinessHours v-if="propModal == 'business_hours'" :modal="true"/>
           <StoreDetails v-if="propModal == 'store_details'" />
-          <Shipping v-if="propModal == 'shipping'" />
+          <Shipping v-if="propModal == 'shipping'" :modal="true" />
           <SuccessModal v-if="propModal == 'success'" />
-          <FilterOrdersModal v-if="propModal == 'filter_orders'" />
+          <FilterOrdersModal v-if="propModal == 'filter_orders'" @close="closeDialog" />
+          <CallCustomer
+            v-if="propModal == 'call_customer'"
+            :phone="phone"
+            :name="name"
+          />
+          <SuccessPasswordResetMail
+            v-if="propModal == 'success_password_reset_mail'"
+          />
         </div>
       </v-dialog>
     </v-row>
@@ -54,6 +58,8 @@ import StoreDetails from "@/components/StoreDetails";
 import Shipping from "@/components/Shipping";
 import SuccessModal from "./successModal.vue";
 import FilterOrdersModal from "./FilterOrdersModal.vue";
+import CallCustomer from "./CallCustomer.vue";
+import SuccessPasswordResetMail from "./SuccessPasswordResetMail.vue";
 
 export default {
   name: "Dialog",
@@ -65,8 +71,10 @@ export default {
     Shipping,
     SuccessModal,
     FilterOrdersModal,
+    CallCustomer,
+    SuccessPasswordResetMail,
   },
-  props: ["modal"],
+  props: ["modal", "phone", "name"],
   data: () => ({
     dialog: true, // default is false
     // propModal: "shipping",
@@ -82,8 +90,8 @@ export default {
       return this.modal; // replace propModal in data with this
     },
   },
+  mounted() {},
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

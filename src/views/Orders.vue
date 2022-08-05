@@ -1,7 +1,13 @@
 <template>
   <div class="pa-5">
     <topNav>Orders</topNav>
-    <div style="margin-top: 4rem; min-height: 80vh">
+    <div
+      :style="
+        `margin-top: 4rem; min-height: 80vh; ${
+          email_verified ? 'marginTop:4rem' : 'marginTop:8rem'
+        }`
+      "
+    >
       <div
         style="display: flex; align-items: center; min-height: 80vh"
         v-if="!orders.length"
@@ -23,6 +29,7 @@
 
       <v-container v-else fluid class="pa-0">
         <v-row class="pa-0">
+
           <v-col cols="9">
             <!-- <v-text-field
               outlined
@@ -32,9 +39,10 @@
             >
             </v-text-field> -->
             <TextInput
-              placeholder="Search by name"
+              :placeholder="`Search by ${filterOption}`"
               name="search"
-              inputStyles="background-color: #FDFDFD; margin-bottom: 0 !important;"
+              inputStyles="background-color: #FDFDFD; margin-bottom: 0 !important; font-size: 12px"
+              @update="(vl) => searchOrders(vl)"
             >
               <template v-slot:prepend-inner>
                 <Search />
@@ -72,7 +80,7 @@
           "
         >
           <OrderItem
-            v-for="(order, i) in  orders"
+            v-for="(order, i) in (computedOrders || orders)"
             :key="'order' + i"
             :order="order"
           />
@@ -107,19 +115,34 @@ export default {
   },
   data: () => {
     return {
+      // searchBy: "client name",
+      searchTerm: "",
       pageWidth: true,
       activeKey: null,
       orderItems: [],
       expandIconPosition: "right",
       loading: false,
       loadingIndex: null,
+      computedOrders: null,
       // orders: [1, 2, 3],
     };
   },
   methods: {
+
     openDialog(setup) {
       this.$store.commit(mutationTypes.SET_SETTINGS_STATE, false);
       EventBus.$emit("dialog", "open", setup);
+    },
+    searchOrders(term) {
+
+      if (term) {
+        this.computedOrders = this.orders.filter((item) =>
+          item[this.filterOption == 'Customer name' ? 'full_name' : this.filterOption == 'phone number' ? 'phone' : this.filterOption == 'Order number' ? 'order_ref' : ''].toLowerCase().includes(term.toLowerCase())
+        );
+      } else {
+        this.computedOrders = null;
+      }
+      // console.log(this.computedOrders);
     },
     // openCollapse(i) {
     //   if (this.activeKey === i) {
@@ -159,15 +182,22 @@ export default {
   },
   computed: {
     ...mapGetters({
-        orders: "getOrders",
+      orders: "getOrders",
+      email_verified: "getEmailStatus",
+      filterOption: 'getFilterOption'
     }),
   },
   watch: {
+    searchTerm() {},
+
     // pageWidth_() {
     //   this.pageWidth_ > 767
     //     ? (this.pageWidth = true)
     //     : (this.pageWidth_ = false);
     // },
+  },
+  mounted() {
+    // this.computedOrders = this.orders;
   },
 };
 </script>

@@ -27,20 +27,22 @@
                 mt-5
                 pt-5
                 text-h5
-                text_pink--text
+                
                 font-weight-medium
               "
+              style="color: #143E32"
             >
-              Create your store
+              Stay on top of your business operations.
             </h1>
-            <p class="text-left text-body-2 text_pink--text">
-              Enter your store name, custom link, and select a store type.
+            <p class="text-left text-body-2" style="color: #445B54">
+              Always know how your business is performing, keep track of store
+              sales and stay ahead of the competition.
             </p>
             <v-form
               class="auth_form_xs"
               :class="{ form_lg: !$vuetify.breakpoint.xs }"
             >
-              <v-stepper :value="step">
+              <!-- <v-stepper :value="step">
                 <v-stepper-header>
                   <v-stepper-step
                     :complete="step1"
@@ -56,16 +58,19 @@
                 </v-stepper-header>
               </v-stepper>
               <div v-show="step === 1">
-              
                 <TextInput
                   label="Store Name"
                   name="storeName"
-                  @update="(vl) => (store_name = vl)"
-
+                  @update="
+                    (vl) => {
+                      store_name = vl;
+                      store_slug = vl.replaceAll(' ', '-');
+                      cleanStoreUrl('blur');
+                    }
+                  "
                 ></TextInput>
-            
-                
-                   <v-text-field
+
+                <v-text-field
                   label="Store Link"
                   v-model="store_slug"
                   outlined
@@ -76,7 +81,6 @@
                   @blur="cleanStoreUrl('blur')"
                 ></v-text-field>
 
-            
                 <v-select
                   label="Store Type"
                   v-model="store_type"
@@ -86,12 +90,23 @@
                   :items="store_types"
                   item-color="success"
                 ></v-select>
-              </div>
-              <div v-show="step === 2">
+              </div> -->
+              <div>
+                <TextInput
+                  label="Store Name"
+                  name="storeName"
+                  @update="
+                    (vl) => {
+                      store_name = vl;
+                      store_slug = vl.replaceAll(' ', '-');
+                      cleanStoreUrl('blur');
+                    }
+                  "
+                ></TextInput>
                 <TextInput
                   label="Email"
                   name="email"
-
+                  :validate="validateInputs"
                   :validations="validations.email"
                   @update="(emailValue) => (email = emailValue)"
                 >
@@ -124,7 +139,8 @@
                 <TextInput
                   label="Password"
                   name="password"
-                  type="password"
+                  :type="showPassword ? 'text' : 'password'"
+                  :validate="validateInputs"
                   :validations="validations.password"
                   @update="(passwordvl) => (password = passwordvl)"
                 >
@@ -160,6 +176,7 @@
                   </template>
                   <template v-slot:append>
                     <svg
+                      @click="showPassword = !showPassword"
                       width="20"
                       height="20"
                       viewBox="0 0 21 18"
@@ -199,25 +216,14 @@
                     </svg> </template
                 ></TextInput>
 
-                <p @click="previousStep">Back</p>
+                <!-- <p @click="previousStep">Back</p> -->
               </div>
 
               <Button
-                v-if="step === 1"
                 :block="true"
-                label="Continue"
-                :primary="true"
-                size="large"
-                :disabled="!step1"
-                @onClick="createAccount()"
-              />
-              <Button
-                :block="true"
-                v-if="step === 2"
                 label="Create store"
                 :primary="true"
                 size="large"
-                :disabled="!step2"
                 @onClick="createAccount()"
               />
               <p class="mt-5 text-body-2">
@@ -242,7 +248,14 @@
 
 <script>
 import axios from "axios";
-import { signUp, createStore } from "@/services/apiServices";
+import {
+  fethcStoreInventory,
+  fetchOrders,
+  signUp,
+  createStore,
+} from "@/services/apiServices";
+import * as mutationTypes from "@/store/mutationTypes";
+
 import { EventBus } from "@/services/eventBus";
 import useVuelidate from "@vuelidate/core";
 import { required, email, minLength } from "@vuelidate/validators";
@@ -274,6 +287,9 @@ export default {
     email: "",
     password: "",
     store_type: null,
+    validateInputs: false,
+    showPassword: false,
+
     store_types: [
       // get this from API (not built yet)
       // {name: "Food", type: 0}, doesn't recognise as true
@@ -308,46 +324,94 @@ export default {
     // },
     createAccount() {
       // e.preventDefault()
-      if (this.step === 1) {
-        this.step = 2;
-   
-        // this.color2 = "primary"
-        if (this.step1 == false) {
-          this.color1 = "grey";
-        }
-      } else {
-        if (this.step1 && this.step2 == true) {
-          let data = {
-            email: this.email,
-            password: this.password,
-          };
-          signUp(data)
-            .then((res) => {
-              console.log(res)
-              window.sessionStorage.setItem("leyyow_token", res.data.token);
-              axios.defaults.headers.common[
-                "Authorization"
-              ] = `Token ${res.data.token}`;
+      
+        // if (this.step1 && this.step2 == true) {
+          this.validateInputs = true;
+          if (!this.v$.$error) {
+            let data = {
+              email: this.email.trim().toLowerCase(),
+              password: this.password,
+            };
+            // console.log(data)
+            signUp(data)
+              .then((res) => {
+                window.sessionStorage.setItem("leyyow_token", res.data.token);
+                axios.defaults.headers.common[
+                  "Authorization"
+                ] = `Token ${res.data.token}`;
 
-              let data = {
-                store_name: this.store_name,
-                slug: this.store_slug,
-                business_type: this.store_type,
-              };
-              createStore(data);
-            })
-            .catch(() => {
-              EventBus.$emit("open_alert", "error", "Signup error");
-            })
-            .finally(() => {
-              this.loading = false;
-              // this.$router.push("/dash");
-              EventBus.$emit("open_alert", "success", "Sign up successful");
-            });
-        } else {
-          EventBus.$emit("open_alert", "error", "Sign up form incomplete");
-        }
-      }
+                let data = {
+                  store_name: this.store_name,
+                  slug: this.store_slug,
+                  business_type: 6,
+                };
+
+                if (res.status == 200 || res.status == 201) {
+                  try {
+                    createStore(data)
+                      .then((createRes) => {
+                        let store = createRes?.data.store;
+                        let settlement = createRes?.data.settlement;
+                        let acct_id = createRes?.data.store.id;
+
+                        fethcStoreInventory(store?.slug);
+                        fetchOrders();
+                        this.$store.commit(
+                          mutationTypes.SAVE_STORE_SLUG,
+                          data.slug
+                        );
+
+                        this.$store.commit(mutationTypes.LOGGED_IN, true);
+                        this.$store.commit(mutationTypes.SAVE_STORE, store);
+                        this.$store.commit(
+                          mutationTypes.SAVE_SETTLEMENT,
+                          settlement
+                        );
+                        this.$store.commit(
+                          mutationTypes.SAVE_ACCOUNT_ID,
+                          acct_id
+                        );
+                        this.$store.commit(mutationTypes.EMAIL_VERIFIED, false);
+                        this.$router.push("/inventory");
+                        this.loading = false;
+                      })
+                      .catch((error) => {
+                        this.loading = false;
+
+                        if (error.response.status == 500) {
+                          this.previousStep();
+                          EventBus.$emit(
+                            "open_alert",
+                            "error",
+                            "that store link or store name is already in use"
+                          );
+                        }
+                      });
+                  } catch (error) {
+                    this.loading = false;
+
+                    // EventBus.$emit("open_alert", "error", "Signup error");
+                  }
+                }
+
+                // EventBus.$emit(
+                //   "open_alert",
+                //   "success",
+                //   "Sign up successful. please login"
+                // );
+              })
+              .catch((err) => {
+                EventBus.$emit(
+                  "open_alert",
+                  "error",
+                  Object.values(err.response.data)[0][0]
+                );
+              });
+          } else {
+            EventBus.$emit("open_alert", "error", "Sign up form incomplete");
+          }
+        // }
+      
     },
     cleanStoreUrl(blur) {
       if (this.store_slug) {
@@ -381,11 +445,7 @@ export default {
   },
   computed: {
     step1() {
-      if (
-        this.store_name &&
-        this.store_slug &&
-        this.store_type 
-      ) {
+      if (this.store_name && this.store_slug && this.store_type) {
         return true;
       } else {
         return false;
@@ -394,7 +454,7 @@ export default {
     step2() {
       if (
         this.email &&
-        this.password 
+        this.password
         // !this.v$.email.$error &&
         // !this.v$.password.$error
       ) {

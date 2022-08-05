@@ -1,7 +1,13 @@
 <template>
-  <div class="pa-5">
-    <topNav>Inventory</topNav>
-    <div style="margin-top: 4rem; min-height: 80vh">
+  <div class="pa-3">
+    <topNav :addProduct="addProduct">Inventory</topNav>
+    <div
+      :style="
+        `margin-top: 4rem; min-height: 80vh; ${
+          email_verified ? 'marginTop:4rem' : 'marginTop:8rem'
+        }`
+      "
+    >
       <div
         v-if="inventory.length < 1"
         style="min-height: 80vh; display: flex; align-items: center"
@@ -12,13 +18,13 @@
             class="justify-center"
             style="font-weight: 600; font-size: 1.3rem"
           >
-            Add and manage your products
+            No products added
           </h3>
-          <p>This is where you’ll add products and manage product.</p>
+          <p>Add products to your store so you can take orders easily.</p>
 
           <Button
             :block="true"
-            label="Add your first product"
+            label="Add Product"
             :primary="true"
             size="large"
             @onClick="addProduct()"
@@ -46,58 +52,32 @@
           >
         </v-col>
       </v-row> -->
-        <v-row class="pa-0">
-          <v-col cols="9">
-            <!-- <v-text-field
-              outlined
-              prepend-inner-icon="mdi-magnify"
-              placeholder="Search by name"
-              background-color="grey lighten-5"
-            >
-            </v-text-field> -->
+        <v-row class="pa-0" style="align-items: flex-start">
+          <v-col cols="12">
             <TextInput
               placeholder="Search by name"
               name="search"
               inputStyles="background-color: #FDFDFD; margin-bottom: 0 !important;"
+              @update="handleSearch"
             >
-              <template v-slot:prepend-inner>
+              <!-- <template v-slot:prepend-inner>
                 <Search />
-              </template>
+              </template> -->
             </TextInput>
           </v-col>
-          <v-col cols="3" class="">
-            <Button
-              :block="true"
-              :primary="true"
-              :containerStyle="{ marginTop: '.2rem' }"
-              @onClick="edit_product_drawer = true"
-            >
-              <template v-slot:child>
-                <v-icon>mdi-plus</v-icon>
-              </template>
-            </Button>
-            <!-- <v-btn
-              color="primary"
-              height="55"
-              depressed
-              @click="product_drawer = true"
-              ><v-icon>$vuetify.icons.filter</v-icon></v-btn
-            > -->
-          </v-col>
+        
         </v-row>
 
         <div
           style="
-            max-height: 70vh;
-            width: 100%;
-            overflow-y: auto;
-            overflow-x: hidden;
-             margin: -2rem 0;
-            padding: 20px 0;
+        
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
           "
         >
           <Product
-            v-for="(product, i) in inventory"
+            v-for="(product, i) in (filteredInventory || inventory)"
             :key="i"
             class="mb-5 cursor"
             :product="product"
@@ -107,6 +87,7 @@
       </v-container>
       <v-navigation-drawer app right :width="400" v-model="edit_product_drawer">
         <AddOrEditProduct
+          v-if="edit_product_drawer"
           :variant_payload="variant_payload"
           @back="backToProductView()"
           @close="closeAddEditDrawer()"
@@ -116,6 +97,7 @@
         <!-- @close="closeProductViewDrawer()"  -->
         <!-- :clear_variants="clear_variants" -->
         <ProductView
+          v-if="currentProduct"
           @back="backToInventory()"
           @editProduct="editProduct($event)"
         />
@@ -133,8 +115,7 @@ import * as mutationTypes from "@/store/mutationTypes";
 import Button from "@/components/Button";
 import Inventory from "@/components/Icons/Inventory";
 import TextInput from "@/components/TextInput";
-import Search from "@/components/Icons/Search.vue";
-
+import { fethcStoreInventory } from "@/services/apiServices";
 import topNav from "@/components/TopNav";
 import Product from "@/components/Product";
 import ProductView from "@/components/ProductView";
@@ -152,7 +133,6 @@ export default {
     AddOrEditProduct,
     MenuSpacer,
     TextInput,
-    Search,
   },
   data: () => {
     return {
@@ -161,6 +141,7 @@ export default {
       edit_product_drawer: false,
       view_product_drawer: false,
       variant_payload: {},
+      filteredInventory: null
       // inventory: [{
       //   has_variant: false,
       //   id: 1,
@@ -170,13 +151,16 @@ export default {
     };
   },
   methods: {
+    handleSearch(e) {
+      this.filteredInventory = this.inventory.filter(item => item.product_name.toLowerCase().includes(e.toLowerCase()));
+    },
     addProduct() {
       this.edit_product_drawer = true;
     },
     backToInventory() {
       // this.clear_variants=true
       this.view_product_drawer = false;
-      this.$store.commit(mutationTypes.SET_PRODUCT_TO_BE_EDITTED, {});
+      this.$store.commit(mutationTypes.SET_PRODUCT_TO_BE_EDITTED, null);
     },
     backToProductView() {
       this.view_product_drawer = true;
@@ -195,7 +179,7 @@ export default {
       //   this.showConfirm();
       // } else {
       //   this.visible = false;
-      this.$store.commit(mutationTypes.SET_PRODUCT_TO_BE_EDITTED, {});
+      this.$store.commit(mutationTypes.SET_PRODUCT_TO_BE_EDITTED, null);
       // }
     },
     closeProductViewDrawer() {
@@ -230,9 +214,16 @@ export default {
     ...mapGetters({
       inventory: "getInventory",
       store: "getStore",
-      // currentProduct: "getProductToBeEditted",
+      storeSlug: "getStoreSlug",
+      email_verified: "getEmailStatus",
+
+      currentProduct: "getProductToBeEditted",
       // unsavedChange: "getUnsavedChange",
     }),
+  },
+  mounted() {
+    this.$store.commit(mutationTypes.SET_PRODUCT_TO_BE_EDITTED, null);
+    fethcStoreInventory(this.storeSlug);
   },
 };
 </script>

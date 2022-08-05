@@ -3,7 +3,7 @@
     <v-card class="elevation-0 overflow-hidden">
       <div style="padding: 16px;">
         <v-card-title class="title justify-center pb-2">
-          Shipping
+          Delivery Fees
         </v-card-title>
         <v-card-text class="pa-0">
           Create your store fulfillment plan.
@@ -13,47 +13,45 @@
           >How will your customers get their products?</v-card-text
         >
         <!-- <v-sheet class="mb-4"> -->
-          <ul class="del_ops">
-            <li
-              @click="setDeliveryOption('pick_up')"
-              :style="
-                delivery_opt == 'pick_up'
-                  ? { borderColor: activeBorderColor }
-                  : ''
-              "
-            >
-              <!-- <v-icon class="">mdi-store-outline</v-icon> -->
-              <img src="../assets/pickup.png" alt="">
-              <p>Pickup</p>
-            </li>
-            <li
-              @click="setDeliveryOption('delivery')"
-              :style="
-                delivery_opt == 'delivery'
-                  ? { borderColor: activeBorderColor }
-                  : ''
-              "
-            >
-              <!-- <v-icon class="">mdi-moped-outline</v-icon> -->
-              <img src="../assets/delivery.png" alt="">
+        <ul class="del_ops">
+          <li
+            @click="setDeliveryOption('pickup')"
+            :style="
+              delivery_opt == 'pickup' ? { borderColor: activeBorderColor } : ''
+            "
+          >
+            <!-- <v-icon class="">mdi-store-outline</v-icon> -->
+            <img src="../assets/pickup.png" alt="" />
+            <p>Pickup</p>
+          </li>
+          <li
+            @click="setDeliveryOption('delivery')"
+            :style="
+              delivery_opt == 'delivery'
+                ? { borderColor: activeBorderColor }
+                : ''
+            "
+          >
+            <!-- <v-icon class="">mdi-moped-outline</v-icon> -->
+            <img src="../assets/delivery.png" alt="" />
 
-              <p>Delivery</p>
-            </li>
-            <li
-              @click="setDeliveryOption('both')"
-              :style="
-                delivery_opt == 'both' ? { borderColor: activeBorderColor } : ''
-              "
-              style="margin-right: 0; position: relative;"
-            >
-              <img src="../assets/bike.png" alt="">
+            <p>Delivery</p>
+          </li>
+          <li
+            @click="setDeliveryOption('both')"
+            :style="
+              delivery_opt == 'both' ? { borderColor: activeBorderColor } : ''
+            "
+            style="margin-right: 0; position: relative;"
+          >
+            <img src="../assets/bike.png" alt="" />
 
-              <p>Both</p>
-            </li>
-          </ul>
+            <p>Both</p>
+          </li>
+        </ul>
         <!-- </v-sheet> -->
 
-        <div v-if="delivery_opt == 'pick_up'">
+        <div v-if="delivery_opt == 'pickup' || delivery_opt == 'both'">
           <v-card-text class="text-left pa-0 pt-5 mt-5">
             Enter your pick-up address
             <v-tooltip bottom>
@@ -100,7 +98,6 @@
                 >
                 <v-select
                   dense
-                  multiple
                   single-line
                   hide-details="true"
                   v-model="location.lga"
@@ -110,43 +107,45 @@
                   item-color="success"
                   background-color="grey lighten-5"
                 ></v-select>
-                <v-card-text class="text-left pa-0 my-3">Price</v-card-text>
-                <v-text-field
-                type="number"
-                  outlined
-                >
+                <v-card-text class="text-left pa-0 my-3">Street</v-card-text>
+                <v-text-field type="text" v-model="location.street" outlined>
                 </v-text-field>
               </template>
-              <p class="delete text-left my-3">
+              <!-- <p class="delete text-left my-3">
                 <v-icon class="delete">
                   mdi-delete-outline
                 </v-icon>
                 Remove
-              </p>
-            
+              </p> -->
             </div>
 
-            <p
+            <!-- <p
               class="text-left text-primary my-5 pointer describe"
               style="c"
               @click="locations.push({ state: '', lga: '' })"
             >
               + Add more location
-            </p>
+            </p> -->
           </v-sheet>
         </div>
 
-        <div v-if="delivery_opt != 'pick_up'">
+        <div v-if="delivery_opt != 'pickup'">
           <v-card-text class="text-left pa-0 pt-5 mt-5"
             >What delivery service will you use?</v-card-text
           >
           <div
-            class="my-4"
-            style="text-align: left; color: #69747E; font-weight: 600; display: flex; justify-content: space-between; align-items: center"
+            class="my-4 pa-4"
+            style="text-align: left; color: #69747E; font-weight: 600; display: flex; justify-content: space-between; align-items: flex-start;border: 0.5px solid #E5E9F2;border-radius: 8px;"
           >
-            <div>
-              Third party
+            <div v-if="shipping_mode_in_house">
+              In-house
               <p class="caption">I have a way of getting orders to customers</p>
+            </div>
+            <div v-else>
+              Third-party
+              <p class="caption">
+                Use our delivery partners to get order to your customer
+              </p>
             </div>
             <span class="switch">
               <v-switch
@@ -158,10 +157,18 @@
               >
               </v-switch>
             </span>
-            <div style="text-align: right;">
-              In house
+            <!-- <div style="text-align: right;">
+             Help me deliver
               <p class="caption">Let us handle shipping for you</p>
-            </div>
+            </div> -->
+          </div>
+
+          <div
+            v-if="!shipping_mode_in_house"
+            :style="{background: '#4CAF50', color: '#fff', borderRadius: '8px', padding: '.8rem', backgroundImage: `url(${require('../assets/banner.png')})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right', backgroundSize: 'contain'}"
+          >
+            <h2>Coming Soon</h2>
+            <p style="margin: 0;">We will notify you when it is live</p>
           </div>
           <!-- <v-sheet
             :style="shipping_mode == 'in_house' ? {borderColor: activeBorderColor} : ''"
@@ -195,18 +202,23 @@
           </v-sheet> -->
         </div>
 
-        <div v-if="shipping_mode_in_house && delivery_opt != 'pick_up'">
+        <div v-if="shipping_mode_in_house && delivery_opt != 'pickup'">
           <v-card-text class="text-left pa-0 pt-5 mt-5"
-            >Set delivery fees</v-card-text
+            >Set delivery fees for different locations</v-card-text
           >
           <ShippingPrices
             @getLocations="saveLocations($event)"
             @resetStringify="resetStringify()"
             :stringify="stringify"
+            :defaultShipping="store.default_shipping"
           />
         </div>
       </div>
-      <setupFooter @saveSetUp="stringifyLocations()">
+      <setupFooter
+        @saveSetUp="stringifyLocations()"
+        :modal="modal"
+        :disabled="!shipping_mode_in_house"
+      >
         Save Shipping
       </setupFooter>
     </v-card>
@@ -226,6 +238,7 @@ import ShippingPrices from "@/components/ShippingPrices";
 
 export default {
   name: "Shipping",
+  props: ["modal"],
   components: {
     setupFooter,
     ShippingPrices,
@@ -237,7 +250,7 @@ export default {
     shipping_mode: "in_house",
     stringify: false,
     shipping_mode_in_house: false,
-    locations: [{ state: "", lga: "" }],
+    locations: [{ state: "", lga: "", street: "" }],
   }),
   methods: {
     changer() {
@@ -256,7 +269,9 @@ export default {
           this.$store.commit(mutationTypes.SAVE_STORE, store);
           this.feedback = true;
           EventBus.$emit("open_alert", "success", "Shipping details updated");
-          this.$router.go(0);
+          if (this.modal) {
+            this.$router.go(0);
+          }
         })
         .catch((err) => {
           EventBus.$emit(
@@ -266,12 +281,23 @@ export default {
           );
         })
         .finally(() => {});
+      this.stringify = false;
     },
     setDeliveryOption(option) {
       this.delivery_opt = option;
     },
     stringifyLocations() {
-      this.stringify = true;
+      if (this.delivery_opt === "pickup") {
+        let stringifiedLocations = "pickup;";
+        this.locations.forEach((location) => {
+          stringifiedLocations +=
+            location.state + "," + location.lga + ";" + location.street + ";";
+        });
+
+        this.saveLocations(stringifiedLocations);
+      } else {
+        this.stringify = true;
+      }
     },
   },
   computed: {
@@ -280,7 +306,47 @@ export default {
     }),
   },
   mounted() {
-    console.log(NaijaStates.lgas("lagos", "abia"));
+    this.store.default_shipping
+      ? (this.shipping_mode_in_house = true)
+      : (this.shipping_mode_in_house = false);
+
+    this.delivery_opt =
+      this.store.default_shipping
+        .split(",")[0]
+        .split(" ")
+        .join("")
+        .toLowerCase() === "pickup"
+        ? "pickup"
+        : this.store.default_shipping.split(";")[0] === "pickup"
+        ? "pickup"
+        : "delivery";
+
+    // console.log(this.delivery_opt);
+
+    if (this.store.default_shipping.split(",")[1] == "0") {
+      return;
+    }
+
+    if (this.delivery_opt == "pickup") {
+      let locations = this.store.default_shipping
+        ?.split(";")
+        .filter((item) => item !== "");
+
+      if (locations) {
+        // console.log(locations);
+        let computedLocations = [];
+        let locationSplit = locations[1].split(",");
+        let obj = {
+          state: locationSplit[0],
+          lga: locationSplit[1],
+          street: locations[2],
+        };
+        computedLocations.push(obj);
+
+        this.locations = computedLocations;
+      }
+    }
+    // console.log(NaijaStates.lgas("lagos", "abia"));
   },
 };
 </script>
@@ -298,6 +364,8 @@ ul {
 }
 .del_ops {
   margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
 }
 .del_ops li {
   display: inline-block;
@@ -308,7 +376,6 @@ ul {
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   width: 85px;
-  margin-right: 20px;
   padding: 15px;
   /* height: 100%; */
   cursor: pointer;

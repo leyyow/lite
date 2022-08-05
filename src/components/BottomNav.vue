@@ -29,10 +29,10 @@ export default {
     return {
       navigation: [
         // Note the name is also used as the route name so change with caution
-        { name: "Dashboard", value: "", icon: CurvedGraph },
+        // { name: "Dashboard", value: "", icon: CurvedGraph },
         { name: "Inventory", value: "", icon: Bookmark },
-        { name: "Orders", value: "", icon: Bag },
-        { name: "Settings", value: "", icon: Setting },
+        { name: "Sales", value: "", icon: Bag },
+        { name: "Manage", value: "", icon: Setting },
       ],
     };
   },
@@ -49,7 +49,7 @@ export default {
             "Avoided redundant navigation to current location"
           )
         ) {
-          console.log(err);
+          // console.log(err);
         }
       });
     },

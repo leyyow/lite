@@ -31,7 +31,7 @@ export default {
   },
   validations() {
     return {
-        form: {
+      form: {
         ...{ [this.name]: this.validations || {} },
       },
     };
@@ -50,32 +50,39 @@ export default {
     },
     placeholder: {
       type: String,
-    
     },
     inputStyles: {
       type: String,
-    
     },
 
     validations: {
       type: Object,
+    },
+    validate: {
+      type: Boolean,
+    },
+    defaultValue: {
+      type: String,
     },
   },
 
   data() {
     return {
       form: {
-        ...{ [this.name]: '' },
+        ...{ [this.name]: this.defaultValue || "" },
       },
     };
   },
 
   methods: {
+    handleAppendClick() {
+      this.$emit("handleAppendClick");
+    },
     handleChange() {
       this.$emit("update", this.form[this.name]);
     },
     catchValidations() {
-      if (this.validations) {
+      if (this.validate && this.validations) {
         return this.v$.form[this.name]?.$dirty
           ? !this.v$.form[this.name]?.$error
             ? true
@@ -100,5 +107,17 @@ export default {
       };
     },
   },
+  watch: {
+    validate() {
+      let original = this.form[this.name]
+        this.form[this.name] = original + ' ';
+
+        setTimeout(() => {
+          this.form[this.name] = original;
+        }, 100);
+    },
+
+  },
+
 };
 </script>
