@@ -329,7 +329,7 @@ export default {
           variant_options: this.variants_with_options.variant_options,
           store: this.store.store_name,
           price: Number(this.product.price + "00"),
-          total_stock: this.product.total_stock,
+          total_stock: 1000000,
         },
       };
 

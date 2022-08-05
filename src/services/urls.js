@@ -35,7 +35,8 @@ export const deleteProductUrl = `${prefix}api/inventory/product/`;
 export const ordersUrl = `${prefix}api/inventory/order/`;
 export const orderItemUrl = `${prefix}api/inventory/order_items/`;
 export const updateOrderStatus = `${prefix}api/inventory/order_item/update/`;
-
+export const saveOrderUrl = `${prefix}api/inventory/order/create/`;
+export const createOrderUrl = `${prefix}api/inventory/order_item/create/`;
 // Merchant payments
 export const saveBankUrl = `${prefix}api/settlement/bank/create/`;
 

@@ -342,7 +342,7 @@ export default {
 
                 let data = {
                   store_name: this.store_name,
-                  slug: this.store_name,
+                  slug: this.store_slug,
                   business_type: 6,
                 };
 

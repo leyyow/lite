@@ -187,6 +187,7 @@ export default {
             this.$store.commit(mutationTypes.SET_SETTINGS_STATE, true); // confirm what this is
             EventBus.$emit("open_alert", "success", "Email verified.");
             EventBus.$emit("dialog", "close", "");
+            //  this.$router.go(0);
           } else {
             this.clearOTP()
             EventBus.$emit(

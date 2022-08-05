@@ -233,3 +233,19 @@ export const verifyPasswordResetToken = (data) => {
     data,
   })
 };
+
+export const saveOrder = (data) => {
+  return axios({
+    method: "post",
+    url: urls.saveOrderUrl,
+    data,
+  });
+};
+
+export const createOrder = (data) => {
+  return axios({
+    method: "post",
+    url: urls.createOrderUrl,
+    data,
+  });
+};

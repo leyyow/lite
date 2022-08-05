@@ -11,159 +11,232 @@
 
     <div class="pa-5">
       <v-container fluid class="pa-0">
-        <v-card-text
-          v-if="!currentProduct"
-          class="text-left text-body-2 pb-2 pa-0 "
-          >Uplaod Product image (Optional) </v-card-text
-        >
-
-        <div v-if="currentProduct" class="d-flex justify-content-start">
+        <div v-if="step === 1">
+          <h3 class="text-left font-light">Select Product</h3>
           <div
-            v-if="image_preview"
-            style="border-radius: 8px; display: inline-block;position: relative"
+            v-if="isMobile"
+            :class="
+              display == 'thumbnail'
+                ? filteredInventory.length < 6
+                  ? 'prod_img three-col'
+                  : filteredInventory.length < 9
+                  ? 'prod_img two-col'
+                  : 'prod_img three-col'
+                : 'prod_detail'
+            "
           >
             <div
-              @click="
-                product.product_image = '';
-                product.id = null;
-              "
-              style="background: black;color: white;position:absolute; top:0; right:-10px; z-index: 20; height: 20px; width: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px"
+              v-for="(product, i) in filteredInventory"
+              :key="'item' + i"
+              :class="display == 'thumbnail' ? 'thumbnail' : ''"
+              :style="display == 'thumbnail' ? thumbStyle(i) : ''"
+              @click="toggleSelect(product)"
             >
-              <v-icon color="#fff" x-small>mdi-close</v-icon>
+              <span
+                style="position: absolute; width: 16px; height: 16px;border: 2px solid black; right: 7px; top: 7px; display: flex; justify-content: center: align-items: center"
+              >
+                <v-icon
+                  v-if="
+                    selectedProducts.find(
+                      (item) => JSON.stringify(item) === JSON.stringify(product)
+                    )
+                  "
+                  style="font-size: 13px;    font-weight: bold;"
+                  >mdi-check</v-icon
+                ></span
+              >
+              <!-- should be direct child of prod_img/prod_detail because flex -->
+              <Product
+                v-if="display != 'thumbnail'"
+                :product="product"
+                :i="i"
+                :logo="storeInfo.logo"
+              />
             </div>
-            <v-img
-              :src="image_preview"
-              height="80"
-              width="80"
-              class="rounded-md"
-            ></v-img>
-          </div>
-          <div
-            v-else-if="product.product_image"
-            style="border-radius: 8px; display: inline-block;position: relative"
-          >
-            <div
-              @click="
-                product.product_image = '';
-                product.id = null;
-              "
-              style="background: black;color: white;position:absolute; top:0; right:-10px; z-index: 20; height: 20px; width: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px"
-            >
-              <v-icon color="#fff" x-small>mdi-close</v-icon>
-            </div>
-
-            <v-img
-              :src="currentProduct.product_image"
-              height="80"
-              width="80"
-              class="rounded-md"
-            ></v-img>
           </div>
         </div>
-
-        <div
-          v-else-if="image_preview"
-          class="d-flex justify-content-start mb-4"
-        >
-          <div
-            style="border-radius: 8px; display: inline-block;position: relative;"
-          >
-            <div
-              @click="
-                $refs.newImageInput.value = null;
-                image_preview = '';
-                product.id = null;
-              "
-              style="background: black;color: white;position:absolute; top:0; right:-10px; z-index: 20; height: 20px; width: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px"
-            >
-              <v-icon color="#fff" x-small>mdi-close</v-icon>
-            </div>
-            <v-img
-              :src="image_preview"
-              height="80"
-              width="80"
-              class="rounded-md"
-            ></v-img>
-          </div>
+        <div v-else-if="step === 2">
+          <a-row class="inner">
+            <a-col :sm="24" :md="12" class="carts" style="margin-bottom: 7rem;">
+              <p class="heading utm">
+                YOU’RE BUYING
+              </p>
+              <div
+                class="cart-item"
+                v-for="(item, i) in selectedProducts"
+                :key="i"
+              >
+                <div class="fascia">
+                  <div
+                    class="image"
+                    :style="{ backgroundImage: `url('${item.product_image}')` }"
+                  ></div>
+                  <div>
+                    <p class="name utm">{{ item.product_name }}</p>
+                    <p class="price_group">
+                      <span v-if="item.has_discount" class="item_price">
+                        ₦{{
+                          numeral(item.price - item.discountAmt).format("0,0")
+                        }}
+                      </span>
+                      <span
+                        :class="
+                          item.has_discount
+                            ? 'item_discount_price'
+                            : 'item_price'
+                        "
+                      >
+                        ₦{{ numeral(item.price).format("0,0") }}
+                      </span>
+                    </p>
+                    <p class="item_subtotal">
+                      <span v-if="item.has_discount">
+                        ₦{{
+                          numeral(
+                            (item.price - item.discountAmt) * item.count
+                          ).format("0,0")
+                        }}
+                      </span>
+                      <span v-else>
+                        ₦{{ numeral(item.price * item.count).format("0,0") }}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <div class="">
+                  <div v-if="item.first_variant_name" class="desc">
+                    <p>Options:</p>
+                    <p>
+                      <span v-if="item.first_variant_name">
+                        {{ item.selected_option }}
+                      </span>
+                      <span v-if="item.second_variant_name">
+                        {{ ", " + item.selected_option2 }}
+                      </span>
+                    </p>
+                  </div>
+                  <!-- <div class="details"> -->
+                  <div
+                    class="count"
+                    :style="!item.first_variant_name ? 'margin-top: 15px;' : ''"
+                  >
+                    <img
+                      @click="removeFromCart(i)"
+                      style="cursor: pointer"
+                      src="../assets/trash.svg"
+                      alt=""
+                    />
+                    <div class="grey">
+                      <span class="svg" @click="reduceInCart(item)">
+                        <svg
+                          width="14"
+                          height="10"
+                          viewBox="0 0 14 2"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            clip-rule="evenodd"
+                            d="M0 1C0 0.44772 0.44772 0 1 0H13C13.5523 0 14 0.44772 14 1C14 1.5523 13.5523 2 13 2H1C0.44772 2 0 1.5523 0 1Z"
+                            fill="#8093AD"
+                          />
+                        </svg>
+                      </span>
+                      <span class="utb">{{ item.count }}</span>
+                      <span class="svg" @click="increaseInCart(item)">
+                        <svg
+                          width="10"
+                          height="10"
+                          viewBox="0 0 10 10"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            clip-rule="evenodd"
+                            d="M5 0C5.5523 0 6 0.44772 6 1V4H9C9.5523 4 10 4.44772 10 5C10 5.5523 9.5523 6 9 6H6V9C6 9.5523 5.5523 10 5 10C4.44771 10 4 9.5523 4 9V6H1C0.44772 6 0 5.5523 0 5C0 4.44771 0.44772 4 1 4H4V1C4 0.44772 4.44771 0 5 0Z"
+                            fill="#8093AD"
+                          />
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                  <!-- </div> -->
+                </div>
+              </div>
+              <div class="cart_prop"></div>
+            </a-col>
+            <!-- <a-col :sm="24" :md="12" class="checkout">
+              <Checkout @submit="setVisible" />
+            </a-col> -->
+          </a-row>
         </div>
+        <div v-else-if="step === 3">
+          <h2 class="text-left">Add Customer</h2>
 
-        <input
-          ref="newImageInput"
-          v-if="!currentProduct"
-          type="file"
-          accept="image/*"
-          @change="uploadImage"
-        />
+          <div class="d-flex my-4" style="justify-content: space-between">
+            <div class="text-left" style="width: 48%">
+              <label for="firstname">First name</label><br />
+              <input
+                style="border: 1px solid #E5E9F2;border-radius: 8px;width: 100%"
+                class="pa-3"
+                type="text"
+                name="firstname"
+                id="firstname"
+                v-model="customerInfo.firstname"
+              />
+            </div>
+            <div class="text-left" style="width: 48%">
+              <label for="lastname">Last name</label><br />
+              <input
+                style="border: 1px solid #E5E9F2;border-radius: 8px;width: 100%"
+                class="pa-3"
+                type="text"
+                name="lastname"
+                id="lastname"
+                v-model="customerInfo.lastname"
 
-        <input
-          v-if="currentProduct"
-          class="mt-5"
-          type="file"
-          @change="uploadImage"
-          accept="image/png,image/gif,image/jpeg"
-        />
+              />
+            </div>
+          </div>
+           <div class="text-left my-4">
+              <label for="email">Email Address</label><br />
+              <input
+                style="border: 1px solid #E5E9F2;border-radius: 8px;width: 100%"
+                class="pa-3"
+                type="text"
+                name="email"
+                id="email"
+                v-model="customerInfo.email"
 
-        <v-card-text class="text-left text-body-2 pb-0 mt-5 px-0"
-          >Product name</v-card-text
-        >
-        <v-text-field
-          outlined
-          hide-details
-          class="mt-2 mb-0"
-          @keyup="unsavedChangeMade()"
-          v-model="product.product_name"
-          :placeholder="!currentProduct ? '' : currentProduct.product_name"
-        ></v-text-field>
-        <v-card-text
-          v-if="!currentProduct"
-          class="text-left text-body-2 pt-0 mt-1 mb-5 describe"
-          >Give your product a short and clear name.</v-card-text
-        >
-        <v-card-text class="text-left text-body-2 pb-0 mt-5 px-0"
-          >Price</v-card-text
-        >
-        <v-text-field
-          type="number"
-          outlined
-          hide-details
-          class="mt-2 mb-0"
-          @keyup="unsavedChangeMade()"
-          v-model="product.price"
-          :placeholder="!currentProduct ? '' : `${currentProduct.price}`"
-        ></v-text-field>
+              />
+            </div>
+           <div class="text-left my-4">
+              <label for="address"> Address</label><br />
+              <input
+                style="border: 1px solid #E5E9F2;border-radius: 8px;width: 100%"
+                class="pa-3"
+                type="text"
+                name="address"
+                id="address"
+                v-model="customerInfo.address"
 
-        <!-- <div v-if="!product.has_variant">
-          <v-card-text class="text-left text-body-2 pb-0 mt-5 px-0"
-            >Stock quantity</v-card-text
-          >
-          <v-text-field
-            type="number"
-            outlined
-            hide-details
-            class="mt-2 mb-0"
-            @keyup="unsavedChangeMade()"
-            v-model="product.total_stock"
-            :placeholder="!currentProduct ? '' : `${currentProduct.price}`"
-          ></v-text-field>
-        </div> -->
+              />
+            </div>
+           <div class="text-left my-4">
+              <label for="phone"> Phone number</label><br />
+              <input
+                style="border: 1px solid #E5E9F2;border-radius: 8px;width: 100%"
+                class="pa-3"
+                type="text"
+                name="phone"
+                id="phone"
+                v-model="customerInfo.phone"
 
-        <v-card-text class="text-left pb-0 mt-5 describe px-0"
-          >Product Description</v-card-text
-        >
-
-        <v-textarea
-          outlined
-          hide-details
-          class="mt-2 mb-0"
-          @keyup="unsavedChangeMade()"
-          v-model="product.description"
-          :placeholder="!currentProduct ? '' : currentProduct.description"
-        ></v-textarea>
-        <v-card-text
-          class="text-left text-capitalize text-caption pt-0 mt-1 mb-5 describe px-0"
-          >give your product a short and clear Description.</v-card-text
-        >
-
+              />
+            </div>
+        </div>
 
         <Button
           v-if="currentProduct"
@@ -174,16 +247,17 @@
           :primary="true"
           @onClick="fetchVariants()"
         />
+        <div style="position: fixed; bottom: 2rem; width: 90%" v-else>
+          <Button
+            size="large"
+            :containerStyle="{ marginTop: '2rem' }"
+            label="Next"
+            :block="true"
+            :primary="true"
+            @onClick="increase"
+          />
+        </div>
 
-        <Button
-          v-else
-          size="large"
-          :containerStyle="{ marginTop: '2rem' }"
-          label="Add Product"
-          :block="true"
-          :primary="true"
-          @onClick="fetchVariants()"
-        />
         <!-- </v-card-actions> -->
       </v-container>
     </div>
@@ -199,21 +273,38 @@ import {
   updateProduct,
 } from "@/services/apiServices";
 import { EventBus } from "@/services/eventBus";
+import Product from "@/components/Product";
+import { saveOrder, createOrder } from "@/services/apiServices";
 
 import Button from "./Button/Button.vue";
+import numeral from "numeral";
 
 export default {
   name: "AddOrEditProduct",
   components: {
     Button,
+    Product,
   },
   data: () => {
     return {
+      step: 1,
+      isMobile: false,
+      search: "",
+      display: "thumbnail", // or detail
+      selectedProducts: [],
       product: {
         first_variant: [],
         second_variant: [],
         third_variant: [],
       },
+      customerInfo: {
+        email: '',
+        address: '',
+        firstname: '',
+        lastname: '',
+        phone: '',
+      },
+      orderID: '',
       variant_pairs: 25, // should be an array
       description: "",
       discount: "",
@@ -244,8 +335,190 @@ export default {
     };
   },
   methods: {
+    numeral,
+    increase() {
+      if (this.step === 1) {
+        if (this.selectedProducts.length) {
+          this.selectedProducts.forEach((item) => (item.count = 1));
+          this.step++;
+        }
+      }else if(this.step === 3){
+        console.log('ajdlfa')
+        this.saveOrderHandle()
+      } else {
+        this.step++;
+      }
+    },
+        createOrderID() {
+      var ref_type = "2"; // '1' for purchase by merchnat's customer
+      var rand_int = Math.floor(Math.random() * 9999) + 1000;
+      const today = new Date();
+      var year = today
+        .getFullYear()
+        .toString()
+        .slice(-2);
+      var store_id = this.store.id.toString(); // this allows for up to 9999 stores merchants
+      // var customer_id = '0000' // 0 for anonymous
+      var month = (today.getMonth() + 1).toString(); // cause month is 0 indexed
+      var day = today.getDate().toString();
+      var cart_count = this.selectedProducts.length.toString();
+      var hour = today.getHours().toString();
+      var minute = today.getMinutes().toString();
+      var second = today.getSeconds().toString();
+      if (hour.length == 1) {
+        hour = "0" + hour;
+      }
+      if (minute.length == 1) {
+        minute = "0" + minute;
+      }
+      if (second.length == 1) {
+        second = "0" + second;
+      }
+      if (month.length == 1) {
+        month = "0" + month;
+      }
+      if (day.length == 1) {
+        day = "0" + day;
+      }
+      if (cart_count.length == 1) {
+        cart_count = "0" + cart_count;
+      }
+      if (store_id.length == 1) {
+        store_id = "000" + store_id;
+      }
+      if (store_id.length == 2) {
+        store_id = "00" + store_id;
+      }
+      if (store_id.length == 3) {
+        store_id = "0" + store_id;
+      }
+      // this.orderID = store_id + month + day + cart_count + hour + minute + customer_id + year
+      this.orderID =
+        ref_type + store_id + month + day + cart_count + year + rand_int;
+    },
+       saveOrderHandle() {
+      this.createOrderID();
+      let data = {
+        address: this.customerInfo.address,
+        email: this.customerInfo.email,
+        full_name: this.customerInfo.firstname + this.customerInfo.lastname,
+        items_count: this.selectedProducts.length,
+        total_amount:this.preshipTotal,
+        unique_items: this.selectedProducts.length,
+        order_ref: this.orderID,
+        phone: this.customerInfo.phone,
+        city: '-',
+        products_total: this.numeral(this.preshipTotal).format("0,0"),
+        shipping: 0,
+        store: this.store.id,
+      };
+      console.log(this.store)
+
+      // console.log(this.cartItems)
+      // if (Object.values(data).includes("")) {
+      //   EventBus.$emit("open_alert", "error", "Please fill in all fields");
+      //   return;
+      // }
+      this.loading = true;
+      saveOrder(data)
+        .then(() => {
+          this.createOrderItems();
+        })
+        .catch(() => {
+          this.loading = false;
+          console.log(this.loading)
+          EventBus.$emit(
+            "open_alert",
+            "error",
+            "An error occured. Please try again"
+          );
+        });
+    },
+    createOrderItems() {
+      // console.log(this.cart_meta.preShipTotal , this.city , 100)
+      createOrder(this.order)
+        .then(() => {
+          // this.payWithPaystack();
+        })
+        .catch((err) => {
+          console.log(err);
+          EventBus.$emit(
+            "open_alert",
+            "error",
+            "Error @ Paystack or CreateOrder"
+          );
+        })
+        .finally(() => (this.loading = false));
+    },
+    increaseInCart(product) {
+      // Increases product count while viewing cart
+      // let product = this.selexctedProducts[index]
+
+      let copy = this.selectedProducts;
+      copy.find((item) => JSON.stringify(product) === JSON.stringify(item))
+        .count++;
+      this.selectedProducts = [...copy];
+
+      // this.selectedProducts = arr
+      copy.subTotal = copy.discountAmt
+        ? copy.count * (copy.price - copy.discountAmt)
+        : copy.count * copy.price;
+      this.selectedProducts = [...copy];
+      // this.$store.commit(mutationTypes.SAVE_CART, this.cart);
+    },
+    reduceInCart(product) {
+      // Reduces product count while viewing cart
+
+      if (product.count > 1) {
+        let copy = this.selectedProducts;
+        copy.find((item) => JSON.stringify(product) === JSON.stringify(item))
+          .count--;
+
+        copy.subTotal = copy.discountAmt // refactor this - used elsewhere
+          ? copy.count * (copy.price - copy.discountAmt)
+          : copy.count * copy.price;
+        this.selectedProducts = [...copy];
+        // this.$store.commit(mutationTypes.SAVE_CART, this.cart);
+      }
+    },
+    removeFromCart(i) {
+      // Deletes all instances of a product while viewing cart
+      this.selectedProducts.splice(i, 1);
+      // this.$store.commit(mutationTypes.SAVE_CART, this.cart);
+    },
+    toggleSelect(product) {
+      let exists = this.selectedProducts.find(
+        (item) => JSON.stringify(item) === JSON.stringify(product)
+      );
+      console.log(exists, product);
+      if (exists) {
+        this.selectedProducts = this.selectedProducts.filter(
+          (item) => JSON.stringify(item) !== JSON.stringify(exists)
+        );
+      } else {
+        let cartItem = {
+          ...product,
+        };
+        this.selectedProducts.push(cartItem);
+      }
+    },
+    thumbStyle(i) {
+      let style = {
+        "background-size": "cover",
+        "background-position": "50% 50%",
+        "background-image": "url(" + this.productImages[i] + ")",
+      };
+      return style;
+    },
     back() {
-      this.currentProduct ? this.$emit("back") : this.close();
+      if (this.step === 2) {
+        this.selectedProducts = [];
+        this.step--;
+      } else if (this.step > 1) {
+        this.step--;
+      } else {
+        this.currentProduct ? this.$emit("back") : this.close();
+      }
     },
     close() {
       this.$emit("close");
@@ -466,10 +739,49 @@ export default {
   computed: {
     ...mapGetters({
       store: "getStore",
+      inventory: "getInventory",
       storeSlug: "getStoreSlug",
       currentProduct: "getProductToBeEditted",
       unsavedChange: "getUnsavedChange",
     }),
+        order() {
+      return this.selectedProducts.map((item, i) => {
+        var order_item = {};
+        order_item.index = i + 1;
+        order_item.order = this.orderID;
+        order_item.product = item.id;
+        order_item.selected_option1 = item.selected_option;
+        order_item.selected_option2 = item.selected_option2;
+        order_item.qty = item.count;
+        order_item.productid = item.id;
+        order_item.sub_total = this.numeral(item.price * item.count).format("0,0");
+        order_item.image_url = item.product_image;
+        return order_item;
+      });
+    },
+       preshipTotal() {
+      // console.log(this.cart)
+      return this.selectedProducts.reduce((prev, current) => prev +( current?.count * current?.price), 0)
+    },
+    productImages() {
+      let images = [];
+      for (let i = 0; i < this.filteredInventory.length; i++) {
+        images.push(this.filteredInventory[i].product_image);
+      }
+      return images;
+    },
+    filteredInventory() {
+      if (this.inventory) {
+        return this.inventory.filter((product) => {
+          if (product.display) {
+            return product.product_name
+              .toLowerCase()
+              .match(this.search.toLowerCase());
+          }
+        });
+      }
+      return [];
+    },
     onePrice() {
       try {
         return this.currentProduct.price.toString();
@@ -487,6 +799,19 @@ export default {
     // has_variant = this.currentProduct.has_variant
   },
   mounted() {
+    if (window.innerWidth < 504) {
+      this.isMobile = true;
+    } else {
+      this.isMobile = false;
+    }
+    window.addEventListener("resize", () => {
+      if (window.innerWidth < 504) {
+        this.isMobile = true;
+      } else {
+        this.isMobile = false;
+      }
+    });
+
     // console.log(this.currentProducct);
     EventBus.$on("get_variants", () => {
       // console.log("get variants activated from edit product");
@@ -552,11 +877,242 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.prod_img {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  // height: 100vh;
+}
+// .prod_img::after {
+//   content: "";
+//   flex: auto;
+// }
+.prod_img.one-col > .thumbnail {
+  width: 100%;
+  min-height: 300px;
+  height: auto;
+}
+.prod_img.two-col > .thumbnail {
+  width: 48%;
+  min-height: 300px;
+  height: auto;
+}
+.thumbnail {
+  position: relative;
+  width: 32%;
+  border-radius: 8px;
+  // height: 150px;
+  padding-bottom: 32%;
+  margin-top: 1%;
+}
+.prod_detail {
+  display: flex;
+  flex-direction: column;
+}
+.prop {
+  // pushes up the bottom most item up
+  height: 60px;
+  width: 100%;
+}
+
 .describe {
   font-size: 14px;
   text-align: left;
   color: #69747e;
   margin-bottom: 0;
 }
+.svg {
+  cursor: pointer;
+  padding: 5px 12px;
+  span {
+    font-size: 18px;
+    line-height: 20px;
+    text-align: center;
+    color: #2b2b2b;
+  }
+}
+// .store-cart {
+.cart_prop {
+  // pushes up the bottom most item in cart
+  height: 160px;
+  width: 100%;
+}
+.cart_summary {
+  width: 100%;
+
+  position: relative;
+  left: 0;
+  bottom: 40px;
+  background: #fff;
+  padding: 50px 15px;
+}
+.back {
+  width: 100%;
+  background: #fff;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  margin-bottom: 0;
+  padding: 10px;
+  padding-left: 15px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.fascia {
+  position: relative;
+  display: flex;
+  width: 100%;
+  // background: pink;
+  .image {
+    width: 82px;
+    height: 82px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin-right: 15px;
+  }
+  .name {
+    font-size: 20px;
+  }
+  .price_group,
+  .item_subtotal {
+    font-size: 16px;
+    font-weight: 500;
+    position: absolute;
+    bottom: 0;
+  }
+  p {
+    margin: 0;
+  }
+  .item_price {
+    color: #3a50d5;
+  }
+  .item_discount_price {
+    color: #919eab;
+    text-decoration: line-through;
+  }
+  .item_subtotal {
+    right: 0;
+  }
+}
+.desc,
+.count {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid #e6e9ef;
+  // border-top: 1px solid #F8F9FA;
+}
+.desc {
+  width: 100%;
+  font-size: 16px;
+  color: #4d5868;
+  margin-top: 15px;
+  p {
+    margin: 0;
+  }
+}
+.count {
+  position: relative;
+  padding: 13px 0;
+  // border-bottom: 1px solid #E6E9EF;
+  img {
+    margin: 5px auto 0;
+    height: 20px;
+  }
+  .grey {
+    position: absolute;
+    width: 120px;
+    right: 0;
+    bottom: 7px;
+    background: #e6e9ef !important;
+    border-radius: 4px;
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 5px;
+  }
+}
+
+.inner {
+  padding: 50px 100px;
+}
+.empty {
+  width: 100%;
+  padding-top: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  p {
+    font-size: 16px;
+    line-height: 20px;
+    color: #8093ad;
+    margin-top: 12px;
+  }
+  .main-btn {
+    height: 50px;
+    width: 200px;
+  }
+}
+.heading {
+  font-size: 12px;
+  line-height: 15px;
+  letter-spacing: 0.05em;
+  color: #8093ad;
+}
+.carts {
+  border-right: 1px solid #e6e9ef;
+  text-align: left;
+  padding-right: 100px;
+  .cart-item {
+    position: relative;
+    // border: 1px solid #E6E9EF;
+    background: #f8f9fa;
+    // background: #E6E9EF;
+    // -moz-box-shadow: 0 0 5px #E6E9EF;
+    // -webkit-box-shadow: 0 0 5px #E6E9EF;
+    // box-shadow: 0 0 5px #E6E9EF;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 15px 10px;
+    .info {
+      .details {
+        .name {
+          font-size: 16px;
+          line-height: 20px;
+          color: #2b2b2b;
+          margin-bottom: 5px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .cart_summary {
+    position: fixed;
+  }
+  .inner {
+    padding: 15px !important;
+  }
+  .carts {
+    padding-right: 0;
+    border: 0;
+  }
+  .cart-item {
+    padding: 15px 0;
+  }
+  .form {
+    margin-top: 40px;
+    padding: 0 0 100px;
+  }
+}
+// }
 </style>

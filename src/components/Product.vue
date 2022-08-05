@@ -12,7 +12,7 @@
          <v-img
             :src="product.product_image"
             lazy-src="https://picsum.photos/id/11/100/60"
-            style="width: auto; height: 100px;border-radius: 8px;"
+            style="width: 100%; height: 100px;border-radius: 8px;"
           
           >
             <template v-slot:placeholder>

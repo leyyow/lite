@@ -1,6 +1,6 @@
 <template>
-  <div class="pa-3">
-    <topNav :addProduct="addProduct">Sales</topNav>
+  <div class="pa-5">
+    <topNav :addProduct="addProduct">Orders</topNav>
     <div
       :style="
         `margin-top: 4rem; min-height: 80vh; ${
@@ -9,18 +9,17 @@
       "
     >
       <div
-        v-if="inventory.length < 1"
-        style="min-height: 80vh; display: flex; align-items: center"
+        style="display: flex; align-items: center; min-height: 80vh"
+        v-if="!orders.length"
       >
         <v-container>
-          <Inventory />
+          <OrdersEmpty />
           <h3
-            class="justify-center"
+            class="justify-center mb-3"
             style="font-weight: 600; font-size: 1.3rem"
           >
-            No registers sales added
+            No Registered Sales
           </h3>
-          <p>Add products to your store so you can take orders easily.</p>
 
           <Button
             :block="true"
@@ -31,198 +30,202 @@
           />
         </v-container>
       </div>
+
       <v-container v-else fluid class="pa-0">
-        <!-- <v-row class="pa-0">
-        <v-col cols="9">
-          <v-text-field
-            outlined
-            prepend-inner-icon="mdi-magnify"
-            placeholder="Name search"
-            background-color="grey lighten-5"
-          >
-          </v-text-field>
-        </v-col>
-        <v-col cols="3" class="">
-          <v-btn
-            color="primary"
-            height="55"
-            depressed
-            @click="edit_product_drawer = true"
-            ><v-icon>mdi-plus</v-icon></v-btn
-          >
-        </v-col>
-      </v-row> -->
-        <v-row class="pa-0" style="align-items: flex-start">
-          <v-col cols="12">
-            <TextInput
+        <v-row class="pa-0">
+          <v-col cols="9">
+            <!-- <v-text-field
+              outlined
+              prepend-inner-icon="mdi-magnify"
               placeholder="Search by name"
-              name="search"
-              inputStyles="background-color: #FDFDFD; margin-bottom: 0 !important;"
-              @update="handleSearch"
+              background-color="grey lighten-5"
             >
-              <!-- <template v-slot:prepend-inner>
+            </v-text-field> -->
+            <TextInput
+              :placeholder="`Search by ${filterOption}`"
+              name="search"
+              inputStyles="background-color: #FDFDFD; margin-bottom: 0 !important; font-size: 12px"
+              @update="(vl) => searchOrders(vl)"
+            >
+              <template v-slot:prepend-inner>
                 <Search />
-              </template> -->
+              </template>
             </TextInput>
           </v-col>
-        
+          <v-col cols="3" class="">
+            <Button
+              :block="true"
+              :primary="true"
+              :containerStyle="{ marginTop: '.2rem' }"
+              @onClick="openDialog('filter_orders')"
+            >
+              <template v-slot:child>
+                <v-icon>$vuetify.icons.filter</v-icon>
+              </template>
+            </Button>
+            <!-- <v-btn
+              color="primary"
+              height="55"
+              depressed
+              @click="product_drawer = true"
+              ><v-icon>$vuetify.icons.filter</v-icon></v-btn
+            > -->
+          </v-col>
         </v-row>
 
         <div
           style="
-                       display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
+            max-height: 70vh;
+            width: 100%;
+            overflow-y: auto;
+            margin: -2rem 0;
+            padding: 20px 0;
           "
         >
-          <Product
-            v-for="(product, i) in (filteredInventory || inventory)"
-            :key="i"
-            class="mb-5 cursor"
-            :product="product"
-            @viewProduct="viewProduct()"
+          <OrderItem
+            v-for="(order, i) in computedOrders || orders"
+            :key="'order' + i"
+            :order="order"
           />
         </div>
       </v-container>
       <v-navigation-drawer app right :width="400" v-model="edit_product_drawer">
         <AddOrEditSale
           v-if="edit_product_drawer"
-          :variant_payload="variant_payload"
           @back="backToProductView()"
           @close="closeAddEditDrawer()"
         />
       </v-navigation-drawer>
-      <v-navigation-drawer app right :width="400" v-model="view_product_drawer">
-        <!-- @close="closeProductViewDrawer()"  -->
-        <!-- :clear_variants="clear_variants" -->
-        <ProductView
-          v-if="currentProduct"
-          @back="backToInventory()"
-          @editProduct="editProduct($event)"
-        />
-      </v-navigation-drawer>
-      <menu-spacer></menu-spacer>
     </div>
+    <MenuSpacer />
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-import * as mutationTypes from "@/store/mutationTypes";
-// import { fethcStoreInventory } from "@/services/apiServices";
-// import { EventBus } from "@/services/eventBus";
-import Button from "@/components/Button";
-import Inventory from "@/components/Icons/Inventory";
-import TextInput from "@/components/TextInput";
-import { fethcStoreInventory } from "@/services/apiServices";
 import topNav from "@/components/TopNav";
-import Product from "@/components/Product";
-import ProductView from "@/components/ProductView";
-import AddOrEditSale from "@/components/AddOrEditSale";
+import OrderItem from "@/components/OrderItem2";
 import MenuSpacer from "@/components/MenuSpacer.vue";
+import OrdersEmpty from "../components/Icons/OrdersEmpty.vue";
+import Button from "@/components/Button";
+import TextInput from "@/components/TextInput";
+import Search from "@/components/Icons/Search.vue";
+import * as mutationTypes from "@/store/mutationTypes";
+import { EventBus } from "@/services/eventBus";
+import AddOrEditSale from "@/components/AddOrEditSale";
 
 export default {
-  // name: 'Inventory',
   components: {
-    Inventory,
-    Button,
     topNav,
-    Product,
-    ProductView,
-    AddOrEditSale,
+    OrderItem,
     MenuSpacer,
+    OrdersEmpty,
+    Button,
     TextInput,
+    Search,
+    AddOrEditSale,
   },
   data: () => {
     return {
-      // clear_variants: false,
-      display: true,
+      // searchBy: "client name",
+      searchTerm: "",
+      pageWidth: true,
+      activeKey: null,
+      orderItems: [],
+      expandIconPosition: "right",
+      loading: false,
+      loadingIndex: null,
+      computedOrders: null,
       edit_product_drawer: false,
-      view_product_drawer: false,
-      variant_payload: {},
-      filteredInventory: null
-      // inventory: [{
-      //   has_variant: false,
-      //   id: 1,
-      //   product_name: 'book',
-
-      // }]
+      // orders: [1, 2, 3],
     };
   },
   methods: {
-    handleSearch(e) {
-      this.filteredInventory = this.inventory.filter(item => item.product_name.toLowerCase().includes(e.toLowerCase()));
-    },
     addProduct() {
       this.edit_product_drawer = true;
     },
-    backToInventory() {
-      // this.clear_variants=true
-      this.view_product_drawer = false;
-      this.$store.commit(mutationTypes.SET_PRODUCT_TO_BE_EDITTED, null);
-    },
-    backToProductView() {
-      this.view_product_drawer = true;
-      this.edit_product_drawer = false;
-    },
     closeAddEditDrawer() {
       this.edit_product_drawer = false;
-      // this.variant_payload = {
-      //   options_1: [],
-      //   options_2: [],
-      //   options_3: [],
-      //   variants: [],
-      // }
-
-      // if (this.currentProduct && this.unsavedChange) {
-      //   this.showConfirm();
-      // } else {
-      //   this.visible = false;
       this.$store.commit(mutationTypes.SET_PRODUCT_TO_BE_EDITTED, null);
-      // }
     },
-    closeProductViewDrawer() {
-      // this.view_product_drawer = false
+    openDialog(setup) {
+      this.$store.commit(mutationTypes.SET_SETTINGS_STATE, false);
+      EventBus.$emit("dialog", "open", setup);
     },
-    editProduct(variant_payload) {
-      this.variant_payload = variant_payload;
-      this.view_product_drawer = false;
-      this.edit_product_drawer = true;
+    searchOrders(term) {
+      if (term) {
+        this.computedOrders = this.orders.filter((item) =>
+          item[
+            this.filterOption == "Customer name"
+              ? "full_name"
+              : this.filterOption == "phone number"
+              ? "phone"
+              : this.filterOption == "Order number"
+              ? "order_ref"
+              : ""
+          ]
+            .toLowerCase()
+            .includes(term.toLowerCase())
+        );
+      } else {
+        this.computedOrders = null;
+      }
+      // console.log(this.computedOrders);
     },
-    openAdd() {
-      this.$store.commit(mutationTypes.SET_PRODUCT_TO_BE_EDITTED, null);
-      this.visible = true;
-      this.emitOpen();
-    },
-    showConfirm() {
-      this.$confirm({
-        title: "Save progress?",
-        content:
-          "You have unsaved changes. Proceeding will mean losing these changes",
-        onOk: () => {
-          this.visible = false;
-        },
-        onCancel() {},
-      });
-    },
-    viewProduct() {
-      this.view_product_drawer = true;
-    },
+    // openCollapse(i) {
+    //   if (this.activeKey === i) {
+    //     this.activeKey = null;
+    //     return;
+    //   }
+    //   this.activeKey = null;
+    //   this.loading = true;
+    //   this.loadingIndex = i;
+    //   this.orderItems = [];
+    //   fetchOrderItems(this.orders[i].order_ref)
+    //     .then((res) => {
+    //       this.orderItems = res.data;
+    //       this.activeKey = i;
+    //     })
+    //     .catch(() => {
+    //       // console.log({ err });
+    //       this.orderItems = [];
+    //     })
+    //     .finally(() => (this.loading = false));
+    // },
+    // markAsCompleted(id, i) {
+    //   updateOrderStatus(id)
+    //     .then(() => {
+    //       fetchOrders();
+    //       this.openCollapse(i);
+    //     })
+    //     .catch(() => {
+    //       // console.log(err);
+    //     });
+    // },
+    // markAll(items, i) {
+    //   items.forEach((item) => {
+    //     this.markAsCompleted(item.id, i);
+    //   });
+    // },
   },
   computed: {
     ...mapGetters({
-      inventory: "getInventory",
-      store: "getStore",
-      storeSlug: "getStoreSlug",
+      orders: "getOrders",
       email_verified: "getEmailStatus",
-
-      currentProduct: "getProductToBeEditted",
-      // unsavedChange: "getUnsavedChange",
+      filterOption: "getFilterOption",
     }),
   },
+  watch: {
+    searchTerm() {},
+
+    // pageWidth_() {
+    //   this.pageWidth_ > 767
+    //     ? (this.pageWidth = true)
+    //     : (this.pageWidth_ = false);
+    // },
+  },
   mounted() {
-    this.$store.commit(mutationTypes.SET_PRODUCT_TO_BE_EDITTED, null);
-    fethcStoreInventory(this.storeSlug);
+    // this.computedOrders = this.orders;
   },
 };
 </script>
