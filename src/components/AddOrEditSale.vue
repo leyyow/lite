@@ -350,7 +350,7 @@ export default {
       }
     },
         createOrderID() {
-      var ref_type = "2"; // '1' for purchase by merchnat's customer
+      var ref_type ='2'; // '1' for purchase by merchnat's customer
       var rand_int = Math.floor(Math.random() * 9999) + 1000;
       const today = new Date();
       var year = today
