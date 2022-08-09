@@ -42,4 +42,6 @@ export const saveBankUrl = `${prefix}api/settlement/bank/create/`;
 
 // Store
 export const storeUrl = `${prefix}api/account/store/gadgets`;
+export const createReviewUrl = `${prefix}api/inventory/review/create/`;
+export const fetchReview = `${prefix}api/inventory/review/`;
 
