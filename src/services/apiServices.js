@@ -249,3 +249,16 @@ export const createOrder = (data) => {
     data,
   });
 };
+export const createReview = (data) => {
+  return axios({
+    method: "post",
+    url: urls.createReviewUrl,
+    data,
+  });
+};
+export const fetchReview = (id) => {
+  return axios({
+    method: "get",
+    url: `${urls.fetchReview}${id}`,
+  });
+};

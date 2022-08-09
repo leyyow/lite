@@ -82,6 +82,7 @@
             class="mb-5 cursor"
             :product="product"
             @viewProduct="viewProduct()"
+            @viewProductReview="viewProductReview()"
           />
         </div>
       </v-container>
@@ -97,6 +98,15 @@
         <!-- @close="closeProductViewDrawer()"  -->
         <!-- :clear_variants="clear_variants" -->
         <ProductView
+          v-if="currentProduct"
+          @back="backToInventory()"
+          @editProduct="editProduct($event)"
+        />
+      </v-navigation-drawer>
+      <v-navigation-drawer app right :width="400" v-model="view_product_review">
+        <!-- @close="closeProductViewDrawer()"  -->
+        <!-- :clear_variants="clear_variants" -->
+        <Review
           v-if="currentProduct"
           @back="backToInventory()"
           @editProduct="editProduct($event)"
@@ -119,6 +129,7 @@ import { fethcStoreInventory } from "@/services/apiServices";
 import topNav from "@/components/TopNav";
 import Product from "@/components/Product";
 import ProductView from "@/components/ProductView";
+import Review from "@/components/Review";
 import AddOrEditProduct from "@/components/AddOrEditProduct";
 import MenuSpacer from "@/components/MenuSpacer.vue";
 
@@ -133,6 +144,7 @@ export default {
     AddOrEditProduct,
     MenuSpacer,
     TextInput,
+    Review
   },
   data: () => {
     return {
@@ -140,6 +152,7 @@ export default {
       display: true,
       edit_product_drawer: false,
       view_product_drawer: false,
+      view_product_review: false,
       variant_payload: {},
       filteredInventory: null
       // inventory: [{
@@ -159,6 +172,7 @@ export default {
     },
     backToInventory() {
       // this.clear_variants=true
+      this.view_product_review = false;
       this.view_product_drawer = false;
       this.$store.commit(mutationTypes.SET_PRODUCT_TO_BE_EDITTED, null);
     },
@@ -208,6 +222,9 @@ export default {
     },
     viewProduct() {
       this.view_product_drawer = true;
+    },
+    viewProductReview() {
+      this.view_product_review = true;
     },
   },
   computed: {
