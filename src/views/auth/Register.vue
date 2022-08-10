@@ -309,7 +309,7 @@ export default {
     storeLinkRules: [],
     validations: {
       email: { required, email },
-      password: { required, minLength: minLength(6) },
+      password: { required, minLength: minLength(8) },
       storeLink: {},
       storeName: {},
     },
