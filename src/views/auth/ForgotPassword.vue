@@ -65,10 +65,10 @@
               </TextInput>
               <Button
                 :block="true"
-                label="send"
+                label="Request password reset"
                 :primary="true"
                 size="large"
-                @onClick="requestPassworReset"
+                @onClick="requestReset"
               />
               <p class="text-body-2 mt-5">
                 Remember your password?
@@ -85,6 +85,9 @@
 </template>
 
 <script>
+import {
+  requestPasswordReset,
+} from "@/services/apiServices";
 import About from "@/components/About";
 import MobileBanner from "@/components/MobileBanner";
 import TextInput from "@/components/TextInput";
@@ -107,7 +110,11 @@ export default {
     },
   }),
   methods: {
-    requestPassworReset() {
+    requestReset() {
+      let data = {
+        email: this.email,
+      }
+      requestPasswordReset(data)
       // this.$store.commit(mutationTypes.SET_SETTINGS_STATE, false);
       EventBus.$emit("dialog", "open", "success_password_reset_mail");
 
