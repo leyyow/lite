@@ -32,6 +32,14 @@ const routes = [
       ),
   },
   {
+    name: "NewPassword",
+    path: "/new_password",
+    component: () =>
+      import(
+        /* webpackChunkName: "new_password" */ "../views/auth/NewPassword.vue"
+      ),
+  },
+  {
     name: "Home",
     path: "/",
     component: Home,
@@ -101,7 +109,8 @@ router.beforeEach((to, from, next) => {
     "/",
     "/register",
     "/login",
-    "/forgot_password", // "/set-new-password/"
+    "/forgot_password",
+    "/new_password",
   ];
   // let whitelist = [
   //   {name: "Home"},
