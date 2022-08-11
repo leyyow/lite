@@ -13,228 +13,377 @@
       @click="close"
     >mdi-close-thick</v-icon> -->
     <!-- <v-divider></v-divider> -->
+    <v-tabs v-model="tab" grow>
+      <v-tab>Product Reviews</v-tab>
+      <v-tab>Store Reviews</v-tab>
+    </v-tabs>
     <div class="pa-5" style="padding-bottom: 6rem !important;">
-      <v-container fluid class="pa-0  text-left">
-        <div style="display: flex; align-items: center">
-          <span style="cursor:pointer">
-            <img
-              v-if="avgRating < 1"
-              src="@/assets/star_outline.svg"
-              alt=""
-              c
-            />
-            <img v-else src="@/assets/star.svg" alt="" />
-          </span>
-          <span style="cursor:pointer">
-            <img
-              v-if="avgRating < 2"
-              src="@/assets/star_outline.svg"
-              alt=""
-              c
-            />
-            <img v-else src="@/assets/star.svg" alt="" />
-          </span>
-          <span style="cursor:pointer">
-            <img
-              v-if="avgRating < 3"
-              src="@/assets/star_outline.svg"
-              alt=""
-              c
-            />
-            <img v-else src="@/assets/star.svg" alt="" />
-          </span>
-          <span style="cursor:pointer">
-            <img
-              v-if="avgRating < 4"
-              src="@/assets/star_outline.svg"
-              alt=""
-              c
-            />
-            <img v-else src="@/assets/star.svg" alt="" />
-          </span>
-          <span style="cursor:pointer">
-            <img
-              v-if="avgRating < 5"
-              src="@/assets/star_outline.svg"
-              alt=""
-              c
-            />
-            <img v-else src="@/assets/star.svg" alt="" />
-          </span>
-          <p class="my-0 ml-3">
-            {{ `${avgRating} out of 5` }}
-          </p>
-        </div>
-        <p>Review ({{ currentProduct.review_count }}) in total</p>
-
-        <div
-          class="d-flex justify-content-between"
-          style="width: 100%; justify-content: space-between; align-items: center"
-        >
-          <span>5 star</span>
-          <div class="col-9">
-            <v-progress-linear
-              v-model="star5"
-              color="#F8A401"
-              height="20"
-              style="border-radius: 5px"
-            ></v-progress-linear>
-          </div>
-
-          <span>{{ Math.round(star5) }}%</span>
-        </div>
-        <div
-          class="d-flex justify-content-between"
-          style="width: 100%; justify-content: space-between; align-items: center"
-        >
-          <span>4 star</span>
-          <div class="col-9">
-            <v-progress-linear
-              v-model="star4"
-              color="#F8A401"
-              height="20"
-              style="border-radius: 5px"
-            ></v-progress-linear>
-          </div>
-          <span>{{ Math.round(star4) }}%</span>
-        </div>
-        <div
-          class="d-flex justify-content-between"
-          style="width: 100%; justify-content: space-between; align-items: center"
-        >
-          <span>3 star</span>
-          <div class="col-9">
-            <v-progress-linear
-              v-model="star3"
-              color="#F8A401"
-              height="20"
-              style="border-radius: 5px"
-            ></v-progress-linear>
-          </div>
-          <span>{{ Math.round(star3) }}%</span>
-        </div>
-        <div
-          class="d-flex justify-content-between"
-          style="width: 100%; justify-content: space-between; align-items: center"
-        >
-          <span>2 star</span>
-          <div class="col-9">
-            <v-progress-linear
-              v-model="star2"
-              color="#F8A401"
-              height="20"
-              style="border-radius: 5px"
-            ></v-progress-linear>
-          </div>
-          <span>{{ Math.round(star2) }}%</span>
-        </div>
-        <div
-          class="d-flex justify-content-between"
-          style="width: 100%; justify-content: space-between; align-items: center"
-        >
-          <span>1 star</span>
-          <div class="col-9">
-            <v-progress-linear
-              v-model="star1"
-              color="#F8A401"
-              height="20"
-              style="border-radius: 5px"
-            ></v-progress-linear>
-          </div>
-          <span>{{ Math.round(star1) }}%</span>
-        </div>
-
-        <h2 class="my-5">Customer reviwes ({{ reviews.length }})</h2>
-
-        <v-card elevation="2" class="mt-2 mb-5" v-for="item in reviews" :key="item.id">
-          <v-row class="mx-2" justify="space-between">
-            <v-card-title>Anonimous</v-card-title>
+      <v-tabs-items v-model="tab">
+        <v-tab-item>
+          <v-container fluid class="pa-0  text-left">
             <div style="display: flex; align-items: center">
               <span style="cursor:pointer">
                 <img
-                  style="width: 20px"
-                  v-if="item.product_rating < 1"
+                  v-if="avgRating < 1"
                   src="@/assets/star_outline.svg"
                   alt=""
                   c
                 />
-                <img
-                  style="width: 20px"
-                  v-else
-                  src="@/assets/star.svg"
-                  alt=""
-                />
+                <img v-else src="@/assets/star.svg" alt="" />
               </span>
               <span style="cursor:pointer">
                 <img
-                  style="width: 20px"
-                  v-if="item.product_rating < 2"
+                  v-if="avgRating < 2"
                   src="@/assets/star_outline.svg"
                   alt=""
                   c
                 />
-                <img
-                  style="width: 20px"
-                  v-else
-                  src="@/assets/star.svg"
-                  alt=""
-                />
+                <img v-else src="@/assets/star.svg" alt="" />
               </span>
               <span style="cursor:pointer">
                 <img
-                  style="width: 20px"
-                  v-if="item.product_rating < 3"
+                  v-if="avgRating < 3"
                   src="@/assets/star_outline.svg"
                   alt=""
                   c
                 />
-                <img
-                  style="width: 20px"
-                  v-else
-                  src="@/assets/star.svg"
-                  alt=""
-                />
+                <img v-else src="@/assets/star.svg" alt="" />
               </span>
               <span style="cursor:pointer">
                 <img
-                  style="width: 20px"
-                  v-if="item.product_rating < 4"
+                  v-if="avgRating < 4"
                   src="@/assets/star_outline.svg"
                   alt=""
                   c
                 />
-                <img
-                  style="width: 20px"
-                  v-else
-                  src="@/assets/star.svg"
-                  alt=""
-                />
+                <img v-else src="@/assets/star.svg" alt="" />
               </span>
               <span style="cursor:pointer">
                 <img
-                  style="width: 20px"
-                  v-if="item.product_rating < 5"
+                  v-if="avgRating < 5"
                   src="@/assets/star_outline.svg"
                   alt=""
                   c
                 />
-                <img
-                  style="width: 20px"
-                  v-else
-                  src="@/assets/star.svg"
-                  alt=""
-                />
+                <img v-else src="@/assets/star.svg" alt="" />
               </span>
+              <p class="my-0 ml-3">
+                {{ `${currentProduct.rating} out of 5` }}
+              </p>
             </div>
-          </v-row>
+            <p>From {{ currentProduct.review_count }} customer reviews</p>
 
-          <v-card-text>
-            <div>
-             {{ item.comment}}
+            <div
+              class="d-flex justify-content-between"
+              style="width: 100%; justify-content: space-between; align-items: center"
+            >
+              <span>5 star</span>
+              <div class="col-9">
+                <v-progress-linear
+                  v-model="star5"
+                  color="#F8A401"
+                  height="20"
+                  style="border-radius: 5px"
+                ></v-progress-linear>
+              </div>
+
+              <span>{{ Math.round(star5) }}%</span>
             </div>
-          </v-card-text>
-        </v-card>
-      </v-container>
+            <div
+              class="d-flex justify-content-between"
+              style="width: 100%; justify-content: space-between; align-items: center"
+            >
+              <span>4 star</span>
+              <div class="col-9">
+                <v-progress-linear
+                  v-model="star4"
+                  color="#F8A401"
+                  height="20"
+                  style="border-radius: 5px"
+                ></v-progress-linear>
+              </div>
+              <span>{{ Math.round(star4) }}%</span>
+            </div>
+            <div
+              class="d-flex justify-content-between"
+              style="width: 100%; justify-content: space-between; align-items: center"
+            >
+              <span>3 star</span>
+              <div class="col-9">
+                <v-progress-linear
+                  v-model="star3"
+                  color="#F8A401"
+                  height="20"
+                  style="border-radius: 5px"
+                ></v-progress-linear>
+              </div>
+              <span>{{ Math.round(star3) }}%</span>
+            </div>
+            <div
+              class="d-flex justify-content-between"
+              style="width: 100%; justify-content: space-between; align-items: center"
+            >
+              <span>2 star</span>
+              <div class="col-9">
+                <v-progress-linear
+                  v-model="star2"
+                  color="#F8A401"
+                  height="20"
+                  style="border-radius: 5px"
+                ></v-progress-linear>
+              </div>
+              <span>{{ Math.round(star2) }}%</span>
+            </div>
+            <div
+              class="d-flex justify-content-between"
+              style="width: 100%; justify-content: space-between; align-items: center"
+            >
+              <span>1 star</span>
+              <div class="col-9">
+                <v-progress-linear
+                  v-model="star1"
+                  color="#F8A401"
+                  height="20"
+                  style="border-radius: 5px"
+                ></v-progress-linear>
+              </div>
+              <span>{{ Math.round(star1) }}%</span>
+            </div>
+
+            <h2 class="my-5">Customer reviwes ({{ reviews.length }})</h2>
+
+            <v-card
+              outlined
+              flat
+              class="mt-2 mb-5 rounded-lg"
+              v-for="item in reviews"
+              :key="item.id"
+            >
+              <v-row class="mx-2" justify="space-between">
+                <v-card-title class="text-caption font-weight-bold pl-2">Anonimous</v-card-title>
+                <div style="display: flex; align-items: center">
+                  <span style="cursor:pointer">
+                    <img
+                      style="width: 20px"
+                      v-if="item.product_rating < 1"
+                      src="@/assets/star_outline.svg"
+                      alt=""
+                      c
+                    />
+                    <img
+                      style="width: 20px"
+                      v-else
+                      src="@/assets/star.svg"
+                      alt=""
+                    />
+                  </span>
+                  <span style="cursor:pointer">
+                    <img
+                      style="width: 20px"
+                      v-if="item.product_rating < 2"
+                      src="@/assets/star_outline.svg"
+                      alt=""
+                      c
+                    />
+                    <img
+                      style="width: 20px"
+                      v-else
+                      src="@/assets/star.svg"
+                      alt=""
+                    />
+                  </span>
+                  <span style="cursor:pointer">
+                    <img
+                      style="width: 20px"
+                      v-if="item.product_rating < 3"
+                      src="@/assets/star_outline.svg"
+                      alt=""
+                      c
+                    />
+                    <img
+                      style="width: 20px"
+                      v-else
+                      src="@/assets/star.svg"
+                      alt=""
+                    />
+                  </span>
+                  <span style="cursor:pointer">
+                    <img
+                      style="width: 20px"
+                      v-if="item.product_rating < 4"
+                      src="@/assets/star_outline.svg"
+                      alt=""
+                      c
+                    />
+                    <img
+                      style="width: 20px"
+                      v-else
+                      src="@/assets/star.svg"
+                      alt=""
+                    />
+                  </span>
+                  <span style="cursor:pointer">
+                    <img
+                      style="width: 20px"
+                      v-if="item.product_rating < 5"
+                      src="@/assets/star_outline.svg"
+                      alt=""
+                      c
+                    />
+                    <img
+                      style="width: 20px"
+                      v-else
+                      src="@/assets/star.svg"
+                      alt=""
+                    />
+                  </span>
+                </div>
+              </v-row>
+
+              <v-card-text>
+                <div class="text-caption">
+                  {{ item.comment }}
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-container>
+        </v-tab-item>
+        <v-tab-item>
+            <v-container fluid class="pa-0  text-left">
+            <div style="display: flex; align-items: center">
+              <span style="cursor:pointer">
+                <img
+                  v-if="storeAvgRating < 1"
+                  src="@/assets/star_outline.svg"
+                  alt=""
+                  c
+                />
+                <img v-else src="@/assets/star.svg" alt="" />
+              </span>
+              <span style="cursor:pointer">
+                <img
+                  v-if="storeAvgRating < 2"
+                  src="@/assets/star_outline.svg"
+                  alt=""
+                  c
+                />
+                <img v-else src="@/assets/star.svg" alt="" />
+              </span>
+              <span style="cursor:pointer">
+                <img
+                  v-if="storeAvgRating < 3"
+                  src="@/assets/star_outline.svg"
+                  alt=""
+                  c
+                />
+                <img v-else src="@/assets/star.svg" alt="" />
+              </span>
+              <span style="cursor:pointer">
+                <img
+                  v-if="storeAvgRating < 4"
+                  src="@/assets/star_outline.svg"
+                  alt=""
+                  c
+                />
+                <img v-else src="@/assets/star.svg" alt="" />
+              </span>
+              <span style="cursor:pointer">
+                <img
+                  v-if="storeAvgRating < 5"
+                  src="@/assets/star_outline.svg"
+                  alt=""
+                  c
+                />
+                <img v-else src="@/assets/star.svg" alt="" />
+              </span>
+              <p class="my-0 ml-3">
+                {{ `${storeAvgRating} out of 5` }}
+              </p>
+            </div>
+            <p>From {{ store.review_count }} customer reviews</p>
+
+            <div
+              class="d-flex justify-content-between"
+              style="width: 100%; justify-content: space-between; align-items: center"
+            >
+              <span>5 star</span>
+              <div class="col-9">
+                <v-progress-linear
+                  v-model="storeStar5"
+                  color="#F8A401"
+                  height="20"
+                  style="border-radius: 5px"
+                ></v-progress-linear>
+              </div>
+
+              <span>{{ Math.round(storeStar5) }}%</span>
+            </div>
+            <div
+              class="d-flex justify-content-between"
+              style="width: 100%; justify-content: space-between; align-items: center"
+            >
+              <span>4 star</span>
+              <div class="col-9">
+                <v-progress-linear
+                  v-model="storeStar4"
+                  color="#F8A401"
+                  height="20"
+                  style="border-radius: 5px"
+                ></v-progress-linear>
+              </div>
+              <span>{{ Math.round(storeStar4) }}%</span>
+            </div>
+            <div
+              class="d-flex justify-content-between"
+              style="width: 100%; justify-content: space-between; align-items: center"
+            >
+              <span>3 star</span>
+              <div class="col-9">
+                <v-progress-linear
+                  v-model="storeStar3"
+                  color="#F8A401"
+                  height="20"
+                  style="border-radius: 5px"
+                ></v-progress-linear>
+              </div>
+              <span>{{ Math.round(storeStar3) }}%</span>
+            </div>
+            <div
+              class="d-flex justify-content-between"
+              style="width: 100%; justify-content: space-between; align-items: center"
+            >
+              <span>2 star</span>
+              <div class="col-9">
+                <v-progress-linear
+                  v-model="storeStar2"
+                  color="#F8A401"
+                  height="20"
+                  style="border-radius: 5px"
+                ></v-progress-linear>
+              </div>
+              <span>{{ Math.round(storeStar2) }}%</span>
+            </div>
+            <div
+              class="d-flex justify-content-between"
+              style="width: 100%; justify-content: space-between; align-items: center"
+            >
+              <span>1 star</span>
+              <div class="col-9">
+                <v-progress-linear
+                  v-model="storeStar1"
+                  color="#F8A401"
+                  height="20"
+                  style="border-radius: 5px"
+                ></v-progress-linear>
+              </div>
+              <span>{{ Math.round(storeStar1) }}%</span>
+            </div>
+
+
+            
+          </v-container>
+        </v-tab-item>
+      </v-tabs-items>
     </div>
   </div>
 </template>
@@ -264,13 +413,21 @@ export default {
         maximumFractionDigits: 0, // (causes 2000.99 to be printed as $2,501)
       }),
       rates: [],
+      storeRates: [],
       reviews: [],
+      tab: '',
       star5: 0,
       star4: 0,
       star3: 0,
       star2: 0,
       star1: 0,
+      storeStar5: 0,
+      storeStar4: 0,
+      storeStar3: 0,
+      storeStar2: 0,
+      storeStar1: 0,
       avgRating: 0,
+      storeAvgRating: 0,
       productRateStars: {
         fill1: false,
         fill2: false,
@@ -334,6 +491,7 @@ export default {
   computed: {
     ...mapGetters({
       currentProduct: "getProductToBeEditted",
+      store: "getStore",
     }),
     discount_type() {
       let type;
@@ -349,13 +507,33 @@ export default {
       this.reviews = res.data;
 
       let rates = this.currentProduct?.rate_tracking.split(",");
-      this.avgRating = rates.indexOf(String(Math.max(...rates))) + 1;
+      this.avgRating = this.currentProduct.rating //rates.indexOf(String(Math.max(...rates))) + 1;
       this.rates = rates;
-      this.star1 = (rates[0] / this.currentProduct.review_count) * 100;
-      this.star2 = (rates[1] / this.currentProduct.review_count) * 100;
-      this.star3 = (rates[2] / this.currentProduct.review_count) * 100;
-      this.star4 = (rates[3] / this.currentProduct.review_count) * 100;
-      this.star5 = (rates[4] / this.currentProduct.review_count) * 100;
+      this.star1 =
+        (Number(rates[0]) / this.currentProduct.review_count) * 100 || 0;
+      this.star2 =
+        (Number(rates[1]) / this.currentProduct.review_count) * 100 || 0;
+      this.star3 =
+        (Number(rates[2]) / this.currentProduct.review_count) * 100 || 0;
+      this.star4 =
+        (Number(rates[3]) / this.currentProduct.review_count) * 100 || 0;
+      this.star5 =
+        (Number(rates[4]) / this.currentProduct.review_count) * 100 || 0;
+
+let storeRates = this.store?.rate_tracking.split(",");
+      this.storeAvgRating = this.store.rating //rates.indexOf(String(Math.max(...rates))) + 1;
+      this.storeRates = storeRates;
+      this.storeStar1 =
+        (Number(storeRates[0]) / this.store.review_count) * 100 || 0;
+      this.storeStar2 =
+        (Number(storeRates[1]) / this.store.review_count) * 100 || 0;
+      this.storeStar3 =
+        (Number(storeRates[2]) / this.store.review_count) * 100 || 0;
+      this.storeStar4 =
+        (Number(storeRates[3]) / this.store.review_count) * 100 || 0;
+      this.storeStar5 =
+        (Number(storeRates[4]) / this.store.review_count) * 100 || 0;
+
       this.display = this.currentProduct.display;
       let _currentProduct = this.currentProduct;
 
