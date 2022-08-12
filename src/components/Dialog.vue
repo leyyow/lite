@@ -41,6 +41,12 @@
           <SuccessPasswordResetMail
             v-if="propModal == 'success_password_reset_mail'"
           />
+          <SuccessPasswordReset
+            v-if="propModal == 'success_password_reset'"
+          />
+          <SuccessAddSale
+            v-if="propModal == 'success_add_sale'"
+          />
         </div>
       </v-dialog>
     </v-row>
@@ -60,6 +66,8 @@ import SuccessModal from "./successModal.vue";
 import FilterOrdersModal from "./FilterOrdersModal.vue";
 import CallCustomer from "./CallCustomer.vue";
 import SuccessPasswordResetMail from "./SuccessPasswordResetMail.vue";
+import SuccessPasswordReset from "./SuccessPasswordReset.vue";
+import SuccessAddSale from "./SuccessAddSale.vue";
 
 export default {
   name: "Dialog",
@@ -73,6 +81,8 @@ export default {
     FilterOrdersModal,
     CallCustomer,
     SuccessPasswordResetMail,
+    SuccessPasswordReset,
+    SuccessAddSale
   },
   props: ["modal", "phone", "name"],
   data: () => ({

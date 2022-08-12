@@ -111,6 +111,7 @@ router.beforeEach((to, from, next) => {
     "/login",
     "/forgot_password",
     "/new_password",
+    "/new_password/",
   ];
   // let whitelist = [
   //   {name: "Home"},
