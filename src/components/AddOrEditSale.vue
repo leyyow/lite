@@ -274,10 +274,11 @@ import {
 } from "@/services/apiServices";
 import { EventBus } from "@/services/eventBus";
 import Product from "@/components/Product";
-import { saveOrder, createOrder } from "@/services/apiServices";
+import { saveOrder, createOrder,createCustomer } from "@/services/apiServices";
 
 import Button from "./Button/Button.vue";
 import numeral from "numeral";
+import { fetchOrders } from '../services/apiServices';
 
 export default {
   name: "AddOrEditProduct",
@@ -401,7 +402,7 @@ export default {
       let data = {
         address: this.customerInfo.address,
         email: this.customerInfo.email,
-        full_name: this.customerInfo.firstname + this.customerInfo.lastname,
+        full_name: this.customerInfo.firstname + ' ' + this.customerInfo.lastname,
         items_count: this.selectedProducts.length,
         total_amount:this.preshipTotal,
         unique_items: this.selectedProducts.length,
@@ -423,6 +424,9 @@ export default {
       saveOrder(data)
         .then(() => {
           this.createOrderItems();
+          createCustomer({first_name: this.customerInfo.firstname, last_name: this.customerInfo.lastname, line1: this.customerInfo.address, email: this.customerInfo.email, phone: this.customerInfo.phone, stores: [this.store.id]})
+        EventBus.$emit("dialog", "open", "success_add_sale"); // change success message        
+
         })
         .catch(() => {
           this.loading = false;
@@ -439,6 +443,7 @@ export default {
       createOrder(this.order)
         .then(() => {
           // this.payWithPaystack();
+               fetchOrders();
         })
         .catch((err) => {
           console.log(err);
@@ -799,6 +804,7 @@ export default {
     // has_variant = this.currentProduct.has_variant
   },
   mounted() {
+
     if (window.innerWidth < 504) {
       this.isMobile = true;
     } else {

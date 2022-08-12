@@ -92,7 +92,7 @@ export const fetchOrders = () => {
     url: urls.ordersUrl,
   })
     .then((res) => {
-      store.commit(mutationTypes.SAVE_ORDERS, res.data);
+      store.commit(mutationTypes.SAVE_ORDERS, res.data.sort( (objA, objB) => Number(new Date(objB.created)) - Number(new Date(objA.created))));
     })
     .catch(() => {
     });
@@ -253,6 +253,13 @@ export const createReview = (data) => {
   return axios({
     method: "post",
     url: urls.createReviewUrl,
+    data,
+  });
+};
+export const createCustomer = (data) => {
+  return axios({
+    method: "post",
+    url: urls.createCustomerUrl,
     data,
   });
 };

@@ -236,7 +236,6 @@ export default {
           username: this.username.trim().toLowerCase(),
           password: this.password,
         };
-        console.log(data)
         this.loading = true;
         apiLogin(data)
           .then((res) => {

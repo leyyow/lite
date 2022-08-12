@@ -161,17 +161,24 @@ export default {
   }),
   methods: {
     changePassword() {
+      console.log(this.$route)
       let data = {
         password: this.password,
-        token: '9ca6b8b708c0e2f2e7eafe69',
+        token: this.$route.query.token,
       }
       updatePassword(data)
       .then(() => {
-        EventBus.$emit("dialog", "open", "success_password_reset_mail"); // change success message        
+        EventBus.$emit("dialog", "open", "success_password_reset"); // change success message        
       })
       .catch((error) => {
         // add appropriate error response
-        console.log(error)
+
+        console.log(error.response.data.password[0] )
+         EventBus.$emit(
+              "open_alert",
+              "error",
+             error.response.data.password[0]
+            );
       });
     }
   },

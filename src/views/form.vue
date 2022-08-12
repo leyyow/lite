@@ -118,6 +118,7 @@
       <textarea
         name="review"
         id="review"
+        v-model="comment"
         cols=""
         rows="5"
         style="border: 1px solid #E5E9F2;width: 100%; border-radius: 8px;margin: 1rem 0;padding: .5rem"
@@ -279,7 +280,9 @@ export default {
 
       productRate: 0,
       storeRate: 0,
-      productReview: ''
+      productReview: '',
+      comment: '',
+      title: ''
     };
   },
   computed: {
@@ -291,13 +294,13 @@ export default {
   methods: {
       async submit() {
           await createReview( {
-    "feedback_image": '' ,
-    "comment": "A comment",
+    // "feedback_image": '' ,
+    "comment": this.comment,
     "store_rating": 3,
-    "product_rating": 3,
-    "store": 22,
-    "customer": 5,
-    "product": 610
+    "product_rating": this.productRate,
+    "store": this.store.id,
+    "customer": 26,
+    "product": 913
 })
   
       }
