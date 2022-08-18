@@ -33,7 +33,7 @@ const routes = [
   },
   {
     name: "NewPassword",
-    path: "/new_password",
+    path: "/set-new-password",
     component: () =>
       import(
         /* webpackChunkName: "new_password" */ "../views/auth/NewPassword.vue"
@@ -94,6 +94,14 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "register" */ "../views/auth/Register.vue"),
   },
+  {
+    name: "GiveFeedback",
+    path: "/feedback/:product_id",
+    component: () =>
+      import(
+        /* webpackChunkName: "forgot_password" */ "../views/form.vue"
+      ),
+  },
 ];
 
 const router = new VueRouter({
@@ -106,12 +114,12 @@ router.beforeEach((to, from, next) => {
   let token = window.sessionStorage.getItem("leyyow_token");
 
   let whitelist = [
-    "/",
     "/register",
     "/login",
     "/forgot_password",
-    "/new_password",
-    "/new_password/",
+    "/set-new-password",
+    "/set-new-password/",
+    "/feedback/"
   ];
   // let whitelist = [
   //   {name: "Home"},
@@ -120,7 +128,9 @@ router.beforeEach((to, from, next) => {
   //   {name: "ResetPassword"},
   //   {name: "newPassword"}
   // ];
-  if (whitelist.includes(to.path)) {
+  whitelist.some(item => console.log(to.path.includes(item), item))
+  if (whitelist.some(item => to.path.includes(item))) {
+   
     if (token) {
       next({
         name: "Inventory",
@@ -129,6 +139,7 @@ router.beforeEach((to, from, next) => {
       next();
     }
   } else {
+
     if (token) {
       next();
     } else {
