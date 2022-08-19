@@ -1,5 +1,9 @@
 <template>
-  <div class="pa-3 text-left pb-5 mb-5" style="overflow-y: scroll; height: 100%">
+  <div
+  v-if="reviews.length"
+    class="pa-3 text-left pb-5 mb-5"
+    style="overflow-y: scroll; height: 100%"
+  >
     <h1>Customer feedback</h1>
     <p>
       We value your feedback, Please take a few minutes to give us feedback
@@ -135,7 +139,7 @@
         style="border: 1px solid #E5E9F2;width: 100%; border-radius: 8px;margin: 1rem 0;padding: .5rem"
       ></textarea>
     </div>
-    <!-- <div>
+    <div>
       <label for="title">
         <h2>Tittle of your review</h2>
 
@@ -143,11 +147,13 @@
       >
       <input
         type="text"
+            v-if="reviews[currentStep - 1]"
+        v-model="reviews[currentStep - 1].title"
         name="title"
         id="title"
         style="border: 1px solid #E5E9F2;width: 100%; border-radius: 8px;margin: 1rem 0; height: 45px;padding: .5rem"
       />
-    </div> -->
+    </div>
 
     <p>How likely are you to purchase from this merchant again?</p>
 
@@ -283,7 +289,7 @@
 import Button from "@/components/Button/Button.vue";
 import { mapGetters } from "vuex";
 import { createReview } from "@/services/apiServices";
-import { fetchOrderItems } from "../services/apiServices";
+import { fetchReviewItems } from "../services/apiServices";
 import { EventBus } from "@/services/eventBus";
 
 export default {
@@ -323,15 +329,12 @@ export default {
   },
 
   methods: {
-     submit() {
-      this.reviews.forEach(async item => {
- await createReview(item);
+    submit() {
+      this.reviews.forEach(async (item) => {
+        await createReview(item);
+      });
 
-      })
-
-        EventBus.$emit("dialog", "open", "success_add_sale"); // change success message        
-
-
+      EventBus.$emit("dialog", "open", "success_add_review"); // change success message
     },
     handleNext() {
       this.currentStep++;
@@ -354,18 +357,20 @@ export default {
   async mounted() {
     // fetch product items
     // console.log(this.$route.params.product_id)
-    const res = await fetchOrderItems(this.$route.params.product_id);
+    const res = await fetchReviewItems(this.$route.params.product_id);
     this.orderItems = res.data;
     this.steps = res.data.length;
-    res.data.forEach((item, idx) => {
-      this.reviews.push({
-        order_ref: "10001111401218982",
-        comment: "",
-        store_rating: "",
-        product_rating: "",
-        product: item.id,
-        product_index: idx,
-      });
+    res.data.forEach((item) => {
+      if (!item.has_feedback) {
+        this.reviews.push({
+          order_ref: this.$route.params.product_id,
+          comment: "",
+          store_rating: "",
+          product_rating: "",
+          title: "",
+          product_index: item.index,
+        });
+      }
     });
   },
 };

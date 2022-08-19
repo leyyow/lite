@@ -160,7 +160,7 @@
               :key="item.id"
             >
               <v-row class="mx-2" justify="space-between">
-                <v-card-title class="text-caption font-weight-bold pl-2">Anonimous</v-card-title>
+                <v-card-title class="text-caption font-weight-bold pl-2">Anonymous</v-card-title>
                 <div style="display: flex; align-items: center">
                   <span style="cursor:pointer">
                     <img

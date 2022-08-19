@@ -47,6 +47,9 @@
           <SuccessAddSale
             v-if="propModal == 'success_add_sale'"
           />
+          <SuccessAddReview
+            v-if="propModal == 'success_add_review'"
+          />
         </div>
       </v-dialog>
     </v-row>
@@ -68,6 +71,7 @@ import CallCustomer from "./CallCustomer.vue";
 import SuccessPasswordResetMail from "./SuccessPasswordResetMail.vue";
 import SuccessPasswordReset from "./SuccessPasswordReset.vue";
 import SuccessAddSale from "./SuccessAddSale.vue";
+import SuccessAddReview from "./SuccessAddReview.vue";
 
 export default {
   name: "Dialog",
@@ -82,7 +86,8 @@ export default {
     CallCustomer,
     SuccessPasswordResetMail,
     SuccessPasswordReset,
-    SuccessAddSale
+    SuccessAddSale,
+    SuccessAddReview
   },
   props: ["modal", "phone", "name"],
   data: () => ({

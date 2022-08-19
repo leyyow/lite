@@ -85,6 +85,12 @@ export const fetchOrderItems = (id) => {
     url: `${urls.orderItemUrl}${id}/`,
   });
 };
+export const fetchReviewItems = (id) => {
+  return axios({
+    method: "get",
+    url: `${urls.fetchReviewItems}${id}`,
+  });
+};
 
 export const fetchOrders = () => {
   axios({

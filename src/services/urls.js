@@ -45,4 +45,5 @@ export const storeUrl = `${prefix}api/account/store/gadgets`;
 export const createReviewUrl = `${prefix}api/inventory/review/create/`;
 export const createCustomerUrl = `${prefix}api/account/customer/create/`;
 export const fetchReview = `${prefix}api/inventory/review/`;
+export const fetchReviewItems = `${prefix}api/inventory/order/review_items/`;
 
