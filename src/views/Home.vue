@@ -54,7 +54,6 @@ export default {
   position: relative;
   padding: 20px;
   .nav {
-    margin-top: 20px;
     height: 72px;
     display: flex;
     flex-direction: row;
@@ -105,10 +104,6 @@ h1 {
 }
 .prod_img {
   display: grid;
-  // grid-template-rows: 1fr;
-  // width: 100%;
-  // max-width: 500px;
-  // margin: 0 auto;
 }
 .prod_img img {
   display: flex;
