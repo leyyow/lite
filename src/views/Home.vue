@@ -7,7 +7,8 @@
       </div>
       <h1>Send receipts, get feedback, and view business analytics</h1>
       <p class="about">...Free for life with Leyyow.</p>
-      <img :src="prod_img" style="width: 100%">
+      <div class="prod_img"><img :src="prod_img"></div>
+      
       <div class="auth">
         <button class="button" @click="toSignup()">Get started</button>
       </div>
@@ -81,7 +82,8 @@ export default {
 h1 {
   margin-top: 30px;
   font-family: Comfortaa, Helvetica, Arial, sans-serif;
-  font-size: 25px;
+  color: #FFF;
+  font-size: 30px;
   font-weight: 500;
   text-align: center;
   letter-spacing: 0.01em;
@@ -100,6 +102,19 @@ h1 {
   padding-top: 40px;
   margin-top: -50px;
   background: #0C2C5E;
+}
+.prod_img {
+  display: grid;
+  // grid-template-rows: 1fr;
+  // width: 100%;
+  // max-width: 500px;
+  // margin: 0 auto;
+}
+.prod_img img {
+  display: flex;
+  margin: auto;
+  width: 100%;
+  max-width: 500px;
 }
 .button {
   display: block;
