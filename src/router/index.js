@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "../views/Home.vue";
+import Home from "@/views/Home.vue";
 
 Vue.use(VueRouter);
 
@@ -114,6 +114,7 @@ router.beforeEach((to, from, next) => {
   let token = window.sessionStorage.getItem("leyyow_token");
 
   let whitelist = [
+    "/",
     "/register",
     "/login",
     "/forgot_password",
@@ -128,7 +129,7 @@ router.beforeEach((to, from, next) => {
   //   {name: "ResetPassword"},
   //   {name: "newPassword"}
   // ];
-  whitelist.some(item => console.log(to.path.includes(item), item))
+  // whitelist.some(item => console.log(to.path.includes(item), item))
   if (whitelist.some(item => to.path.includes(item))) {
    
     if (token) {
